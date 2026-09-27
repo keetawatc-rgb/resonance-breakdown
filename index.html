@@ -526,6 +526,46 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .tr-item .btn{padding:4px 6px;font-size:12px}
 .offline{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);transform:translate(-50%,-150%);z-index:70;background:#B45309;color:#fff;font-size:12.5px;font-weight:700;padding:6px 14px;border-radius:999px;transition:transform .25s;box-shadow:0 4px 14px rgba(0,0,0,.2);max-width:calc(100% - 24px);text-align:center}
 .offline.show{transform:translate(-50%,0)}
+
+/* 4. change badges */
+.badge.new{background:#DCFCE7;color:#166534}
+[data-theme="dark"] .badge.new{background:#14532D;color:#BBF7D0}
+.chg-banner{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#DCFCE7;color:#166534;border:1px solid #86EFAC;border-radius:12px;padding:10px 12px;margin:14px 0 4px;font-size:13.5px;font-weight:600}
+[data-theme="dark"] .chg-banner{background:#052E16;color:#BBF7D0;border-color:#166534}
+.chg-banner .btn{flex:0 0 auto;padding:6px 12px;font-size:13px}
+/* 5. prep ticks */
+.pi{display:flex;gap:10px;align-items:flex-start}
+.pchk{flex:0 0 auto;width:24px;height:24px;border-radius:6px;border:2px solid var(--ink-3);background:var(--surface);color:#fff;font-weight:900;font-size:14px;line-height:1;cursor:pointer;display:grid;place-items:center;margin-top:1px}
+.pi.done .pchk{background:#16A34A;border-color:#16A34A}
+.pi.done>div{text-decoration:line-through;opacity:.55}
+.pdone{font-size:13px;font-weight:600;color:var(--ink-3);margin-left:6px}
+/* 6. now button */
+.now-fab{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:40;border:0;border-radius:999px;background:var(--now);color:#fff;font:inherit;font-weight:800;font-size:14px;padding:12px 18px;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
+.slot.flash{animation:flash 1.6s ease}
+@keyframes flash{0%,100%{background:transparent}30%{background:rgba(224,70,58,.12)}}
+/* 7. print button + print layout */
+.print-btn{flex:0 0 auto;min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;padding:0 12px}
+@media (max-width:480px){ .print-btn span{display:none} }
+#printExtra{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  :root{--paper:#fff;--surface:#fff}
+  body{background:#fff;font-size:11pt}
+  .top,.foot,.quick,.hosp,.wx-alert,.bar,.legend,.more-btn,.scr-row,.sb-strip,.cb-strip,.bs-strip,.bs-map,.park,.now-fab,.chg-banner,.toast,.offline,#sheet,#lb,.scr-modal{display:none!important}
+  .wrap{max-width:none!important;padding:0!important}
+  .dh-grid{display:grid!important;grid-template-columns:1fr 1.2fr;gap:8px}
+  .wx-bars,.wx-src,.wx-live,.wx-now{display:none!important}
+  .slot{display:block!important}
+  .scene{break-inside:avoid;box-shadow:none;border-color:#999;margin-bottom:6px}
+  .scene .det{display:block!important;border-top:1px dashed #999}
+  .desc{-webkit-line-clamp:unset!important;display:block!important}
+  .loc{break-inside:auto} .loc-h{break-after:avoid}
+  #printExtra{display:block!important;break-before:page}
+  .print-foot{margin-top:12px;font-size:9pt;color:#666}
+  a{color:inherit;text-decoration:none}
+  .strip{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+@media print{ .wx-note{-webkit-line-clamp:unset!important;display:block!important} .wx{break-inside:avoid} }
 </style>
 </head>
 <body>
@@ -5347,6 +5387,12 @@ const UI = {
   allT: L("ทั้งหมด","すべて","All"),
   jpH: L("ทีมงานญี่ปุ่น","日本側スタッフ","Japan crew"),
   offline: L("ออฟไลน์ — กำลังแสดงข้อมูลล่าสุดที่บันทึกไว้ในเครื่อง","オフライン — 端末に保存された最新データを表示中","Offline — showing the last data saved on this device"),
+  chgNew: L("ใหม่","新規","New"), chgBadge: L("เปลี่ยน","変更","Changed"), chgBanner: L("มีการเปลี่ยนแปลง {n} จุดตั้งแต่คุณเปิดวันนี้ครั้งล่าสุด","前回この日を開いてから{n}件の変更があります","{n} change(s) since you last opened this day"),
+  chgAck: L("รับทราบ","確認済み","Got it"), chgRemoved: L("ถูกตัดออก","削除","Removed"), chgFirst: L("","",""),
+  chgF: { time:L("เวลา","時間","time"), place:L("สถานที่","場所","place"), desc:L("เนื้อหา","内容","content"), cast:L("นักแสดง","出演","cast"), support:L("สมทบ/Extra","サポート","support"), art:L("พร็อพ","小道具","props"), ward:L("เสื้อผ้า","衣装","wardrobe"), remark:L("หมายเหตุ","備考","remark"), dn:L("D/N","D/N","D/N"), ie:L("INT/EXT","INT/EXT","INT/EXT") },
+  nowBtn: L("ตอนนี้","現在","Now"), nowNext: L("ถัดไป","次","Next"), printBtn: L("พิมพ์ / PDF","印刷・PDF","Print / PDF"),
+  printed: L("พิมพ์จาก RESONANCE Breakdown","RESONANCE ブレイクダウンより印刷","Printed from RESONANCE Breakdown"),
+  prepDone: L("เสร็จ {d}/{t}","完了 {d}/{t}","Done {d}/{t}"),
   sos: L("เบอร์ฉุกเฉิน","緊急連絡先","Emergency numbers"), sosLead: L("แตะเบอร์เพื่อโทรได้ทันที","番号をタップで発信","Tap a number to call"), sosTip: L("บอกที่อยู่ได้จากปุ่ม Google Maps ของโลเคชั่น","住所はロケ地のGoogleマップボタンで確認","Get the address from the location's Google Maps button"),
   prepH: L("เตรียมตัว / ยังขาด","準備・不足情報","Prep / still missing"), prepLead: L("รวบรวมจาก Breakdown, พยากรณ์, บท, บอร์ด และคอสตูมบุ๊ก — กรองตามทีมได้","ブレイクダウン・天気・台本・ボード・衣装ブックから集約 — チーム別に絞り込み可","Compiled from the breakdown, forecast, script, board and costume book — filter by team"),
   prepDo: L("ต้องเตรียม","準備すること","To prepare"), prepMiss: L("ยังขาดข้อมูล","不足している情報","Still missing"), prepAll: L("ทั้งทริป","全日程共通","Whole shoot"), prepGo: L("รายการเตรียมตัว","準備リスト","Prep list"),
@@ -5543,6 +5589,7 @@ function applyTheme(){ document.documentElement.setAttribute("data-theme", theme
 
 function render(){
   applyTheme();
+  nowFab();
   document.documentElement.lang=lang;
   document.body.classList.toggle("ja",lang==="ja");
   document.getElementById("brandSub").textContent=t(UI.sub);
@@ -5591,7 +5638,7 @@ function head(d){
     </div><div class="dh-b">
     ${w?wxBlock(d,w):`<div class="wx warn"><b>${t(UI.weather)}</b> ${esc(t(d.rain))}</div>`}
     </div><div class="dh-c">${jmaBlock()}
-    <div class="quick"><button type="button" class="sos-btn" data-sos="1">🚨 ${t(UI.sos)}</button>${typeof PREP!=="undefined"?`<button type="button" class="prep-btn" data-prepgo="1">📋 ${t(UI.prepGo)} <b>${PREP.filter(x=>x.day===d.day).length}</b></button>`:""}</div>
+    <div class="quick"><button type="button" class="sos-btn" data-sos="1">🚨 ${t(UI.sos)}</button><button type="button" class="print-btn" data-print="1" title="${t(UI.printBtn)}">🖨️<span> ${t(UI.printBtn)}</span></button>${typeof PREP!=="undefined"?`<button type="button" class="prep-btn" data-prepgo="1">📋 ${t(UI.prepGo)} <b>${PREP.filter(x=>x.day===d.day&&!PDONE[prepId(x)]).length}</b></button>`:""}</div>
     <a class="hosp" href="${hosp.url}" target="_blank" rel="noopener"><span>🏥 ${t(UI.hospital)}</span><b>${esc(t(hosp.name))}</b><i>›</i></a></div></div>`:""}
   </section>`;
 }
@@ -5663,6 +5710,7 @@ function jmaBlock(){
 }
 
 /* ================= BLOCKSHOT ================= */
+let CUR_LOC="";
 let DB=null, ASSETS=null, SHOTS=[], TRASH=[], shotsState="init", upState=null, LB=null;
 function hashKey(str){ let h=5381; for(const c of str) h=((h<<5)+h+c.codePointAt(0))>>>0; return "l"+h.toString(36); }
 function dayLocs(d){
@@ -5896,6 +5944,21 @@ async function exportSite(){
   }catch(e){ console.error(e); upState=null; if(tab===1) render(); if(!(e&&e.code==="declined")) toast(t(UI.bs.exportErr).replace("{c}",(e&&e.code)||"error")); }
 }
 
+function nowTarget(d){ // live slot, else next slot today
+  if(d.date!==tokyoDate()) return null; const m=tokyoMinutes(); const els=[...document.querySelectorAll(".slot")];
+  return els.find(e=>e.classList.contains("is-now"))||els.find(e=>{ const t0=(e.querySelector(".slot-t")||{}).textContent||""; const mm=t0.match(/(\d\d):(\d\d)/); return mm&&(+mm[1]*60+ +mm[2])>=m; })||null; }
+function goNow(){ const d=DAYS.find(x=>x.date===tokyoDate()); if(!d) return; if(dayNo!==d.day||tab!==0){ dayNo=d.day; tab=0; render(); }
+  setTimeout(()=>{ const el=nowTarget(d); if(el){ el.scrollIntoView({block:"start"}); window.scrollBy(0,-130); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1600); } },30); }
+function nowFab(){ const d=DAYS.find(x=>x.date===tokyoDate()); let b=document.getElementById("nowFab");
+  if(!d){ if(b) b.remove(); return; }
+  if(!b){ b=document.createElement("button"); b.id="nowFab"; b.type="button"; b.className="now-fab"; b.addEventListener("click",goNow); document.body.appendChild(b); }
+  b.textContent="📍 "+t(UI.nowBtn); }
+function printDay(){ const prev=new Set(openSet); const d=DAYS.find(x=>x.day===dayNo); tab=0; who="all";
+  d.timeline.forEach(it=>(it.slots||[]).forEach(s=>s.scenes.forEach(sc=>openSet.add(dayNo+"|"+sc.id+"|"+t(sc.place))))); render();
+  document.body.classList.add("printing"); document.getElementById("printExtra")?.remove();
+  const ex=document.createElement("div"); ex.id="printExtra"; ex.innerHTML=calls(d)+`<p class="print-foot">${t(UI.printed)} · ${esc(SHARE_URL)} · ${new Date().toLocaleString(LOC(),{timeZone:"Asia/Tokyo"})} JST</p>`; document.getElementById("main").appendChild(ex);
+  setTimeout(()=>{ window.print(); setTimeout(()=>{ document.body.classList.remove("printing"); ex.remove(); openSet.clear(); prev.forEach(k=>openSet.add(k)); render(); },300); },120); }
+
 function schedule(d){
   const castIds=[...new Set(d.cast.map(c=>c.ch))];
   let h=`<div class="bar" role="group"><span class="lbl">${t(UI.show)}</span>
@@ -5910,12 +5973,14 @@ function schedule(d){
     <span><i style="background:var(--ext-n)"></i>${t(UI.legend[4])}</span>
     <span><i style="background:var(--fb)"></i>${t(UI.legend[5])}</span>
   </div>`;
+  h=chgBanner(d)+h;
   const isToday=d.date===tokyoDate(), nowM=tokyoMinutes();
   let n=0, shown=0;
   d.timeline.forEach(item=>{
     if(item.type==="meal"){ h+=`<div class="meal"><span>${esc(t(item.label))}</span><span>${item.start}–${item.end} (${esc(t(item.dur))})</span></div>`; return; }
     n++;
     let sh="";
+    CUR_LOC=item.name.th||"";
     item.slots.forEach(s=>{
       const scs=s.scenes.filter(sc=>who==="all"||sc.cast.includes(who));
       if(!scs.length) return;
@@ -5937,6 +6002,25 @@ function schedule(d){
   return h;
 }
 
+/* ---- 4. what changed since this viewer last opened the day (per device, localStorage) ---- */
+const CHG_FIELDS=["time","ie","dn","place","desc","cast","support","art","ward","remark"];
+function sceneSig(sc,s){ const v=x=>x==null?"":typeof x==="string"?x:(x.th||"")+"|"+(Array.isArray(x)?x.join(","):""); return {time:s.start+"-"+s.end,ie:sc.ie,dn:sc.dn,place:v(sc.place),desc:v(sc.desc),cast:(sc.cast||[]).join(","),support:v(sc.support),art:v(sc.art),ward:v(sc.ward),remark:v(sc.remark)}; }
+function daySigs(d){ const m={}; d.timeline.forEach(it=>(it.slots||[]).forEach(s=>s.scenes.forEach(sc=>{ let k=sc.id+"@"+(it.name.th||""); while(m[k]) k+="'"; m[k]=sceneSig(sc,s); }))); return m; }
+let CHG={}; // day -> {sceneKey: [changed fields] | "new"}, plus _removed list
+function computeChanges(){
+  CHG={};
+  DAYS.forEach(d=>{ const now=daySigs(d); let prev=null; try{ prev=JSON.parse(store.get("rsn-seen-"+d.day)||"null"); }catch(e){}
+    if(!prev){ store.set("rsn-seen-"+d.day,JSON.stringify(now)); return; }
+    const c={}, removed=[]; let n=0;
+    Object.keys(now).forEach(k=>{ if(!prev[k]){ c[k]="new"; n++; return; } const f=CHG_FIELDS.filter(x=>prev[k][x]!==now[k][x]); if(f.length){ c[k]=f; n++; } });
+    Object.keys(prev).forEach(k=>{ if(!now[k]){ removed.push(k.split("@")[0]); n++; } });
+    if(n){ c._removed=removed; c._n=n; CHG[d.day]=c; } });
+}
+function ackChanges(day){ const d=DAYS.find(x=>x.day===day); store.set("rsn-seen-"+day,JSON.stringify(daySigs(d))); delete CHG[day]; render(); }
+function chgFor(sc,placeTh){ const c=CHG[dayNo]; if(!c) return null; return c[sc.id+"@"+placeTh]||null; }
+function chgBanner(d){ const c=CHG[d.day]; if(!c) return "";
+  return `<div class="chg-banner"><span>🆕 ${t(UI.chgBanner).replace("{n}",c._n)}${c._removed.length?` · ${t(UI.chgRemoved)}: ${c._removed.map(esc).join(", ")}`:""}</span><button type="button" class="btn" data-ack="${d.day}">${t(UI.chgAck)}</button></div>`; }
+
 function scene(sc){
   const key=dayNo+"|"+sc.id+"|"+t(sc.place);
   const open=openSet.has(key);
@@ -5947,6 +6031,7 @@ function scene(sc){
       <button type="button" class="sum" data-key="${esc(key)}" aria-expanded="${open}">
         <div class="sum-top"><span class="sid">${esc(sc.id)}</span>
           ${sc.changed?`<span class="badge chg">${t(UI.changed)}</span>`:""}
+          ${(()=>{ const c=chgFor(sc,CUR_LOC); if(!c) return ""; return c==="new"?`<span class="badge new">🆕 ${t(UI.chgNew)}</span>`:`<span class="badge new">🆕 ${t(UI.chgBadge)}: ${c.map(f=>t(UI.chgF[f])).join(", ")}</span>`; })()}
           ${(sc.fb||/FB/.test(sc.dn))?`<span class="badge fb">${t(UI.fb)}</span>`:""}</div>
         <div class="place">${esc(t(sc.place))}</div>
         <p class="desc">${esc(t(sc.desc))}</p>
@@ -6163,14 +6248,20 @@ function deptRows(d){
   return rows;
 }
 
-let prepTeam="all";
-function prepItem(x){ return `<li class="pi pi-${x.k}"><span class="pt pt-${x.team}">${esc(t(PREP_TEAMS[x.team]))}</span>${esc(t(x.t))}</li>`; }
+let prepTeam="all", PDONE={};
+function prepId(x){ return "p"+x.day+"-"+hashKey(x.team+"|"+x.t.th); }
+async function loadPrepDone(){ if(!SB) return; try{ const r=await sbFetch("/rest/v1/prepdone?select=id,done"); const m={}; (await r.json()).forEach(x=>{ if(x.done) m[x.id]=1; }); if(JSON.stringify(m)!==JSON.stringify(PDONE)){ PDONE=m; if(tab===3||tab===0) render(); } }catch(e){} }
+async function togglePrep(id){ const v=!PDONE[id]; if(v) PDONE[id]=1; else delete PDONE[id]; render();
+  try{ await sbFetch("/rest/v1/prepdone",{method:"POST",headers:{"Content-Type":"application/json",Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({id,done:v,updated_at:new Date().toISOString()})}); }catch(e){ if(v) delete PDONE[id]; else PDONE[id]=1; render(); toast(t(UI.mapErr)); } }
+function prepItem(x){ const id=prepId(x), done=!!PDONE[id];
+  return `<li class="pi pi-${x.k}${done?" done":""}">${SB?`<button type="button" class="pchk" role="checkbox" aria-checked="${done}" data-prep="${id}">${done?"✓":""}</button>`:""}<div><span class="pt pt-${x.team}">${esc(t(PREP_TEAMS[x.team]))}</span>${esc(t(x.t))}</div></li>`; }
 function prepSec(d){
   if(typeof PREP==="undefined") return "";
   const ok=x=>prepTeam==="all"||x.team===prepTeam;
   const mine=PREP.filter(x=>x.day===d.day&&ok(x)), all=PREP.filter(x=>x.day===0&&ok(x));
   const doL=mine.filter(x=>x.k==="prep"), miss=mine.filter(x=>x.k==="miss");
-  return `<section class="sec" id="prepSec"><h2>📋 ${t(UI.prepH)}</h2><p class="lead">${t(UI.prepLead)}</p>
+  const dayAll=PREP.filter(x=>x.day===d.day), nd=dayAll.filter(x=>PDONE[prepId(x)]).length;
+  return `<section class="sec" id="prepSec"><h2>📋 ${t(UI.prepH)} <small class="pdone">${t(UI.prepDone).replace("{d}",nd).replace("{t}",dayAll.length)}</small></h2><p class="lead">${t(UI.prepLead)}</p>
     <div class="bar" role="group">${["all",...Object.keys(PREP_TEAMS)].map(k=>`<button type="button" class="pill" data-prepteam="${k}" aria-pressed="${prepTeam===k}">${k==="all"?t(UI.allT):esc(t(PREP_TEAMS[k]))}</button>`).join("")}</div>
     ${doL.length?`<h3 class="ph">${t(UI.prepDo)}</h3><ul class="plist">${doL.map(prepItem).join("")}</ul>`:""}
     ${miss.length?`<h3 class="ph miss">${t(UI.prepMiss)}</h3><ul class="plist">${miss.map(prepItem).join("")}</ul>`:""}
@@ -6224,6 +6315,9 @@ document.addEventListener("click",async e=>{
   if(b.dataset.lb){ openLB(dayNo,b.dataset.lb,+b.dataset.idx); return; }
   if(b.dataset.mapedit){ editMap(b); return; }
   if(b.dataset.parkedit){ editPark(b); return; }
+  if(b.dataset.prep){ togglePrep(b.dataset.prep); return; }
+  if(b.dataset.ack){ ackChanges(+b.dataset.ack); return; }
+  if(b.dataset.print){ printDay(); return; }
   if(b.dataset.restore){ try{ await DB.collection("blockshots").doc(b.dataset.restore).restore(); toast(t(UI.bs.restored)); }catch(e){ toast(t(UI.mapErr)); } return; }
   if(b.dataset.sos){ openSos(); return; }
   if(b.id==="sosClose"){ closeSos(); return; }
@@ -6263,7 +6357,9 @@ document.addEventListener("click",async e=>{
     const m=art.querySelector(".more-btn span"); if(m) m.textContent=o?t(UI.less):t(UI.more);
   }
 });
+computeChanges();
 render();
+if(qs.get("print")==="1") setTimeout(()=>printDay(),600);
 initShots();
 /* offline support + banner */
 if("serviceWorker" in navigator && location.protocol==="https:" || location.hostname==="localhost"){ try{ navigator.serviceWorker && navigator.serviceWorker.register("sw.js"); }catch(e){} }
@@ -6271,7 +6367,8 @@ function netBanner(){ let el=document.getElementById("offline"); if(!el){ el=doc
   el.textContent=t(UI.offline); el.classList.toggle("show",!navigator.onLine); }
 window.addEventListener("online",()=>{ netBanner(); loadLiveWx(); loadMaps(); loadParking(); }); window.addEventListener("offline",netBanner); netBanner();
 loadLiveWx(); setInterval(()=>{ if(!document.hidden) loadLiveWx(); },30*60000);
-loadMaps(); loadParking(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadMaps(); loadParking(); } }); setInterval(()=>{ if(!document.hidden){ loadMaps(); loadParking(); } },60000);
+loadMaps(); loadParking(); loadPrepDone(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } }); setInterval(()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } },60000);
+nowFab(); setInterval(nowFab,60000);
 setInterval(()=>{ if(tab===0 && DAYS.some(d=>d.day===dayNo && d.date===tokyoDate())) render(); },60000);
 
 </script>
