@@ -917,7 +917,7 @@ DAYS.push({
 });
 
 DAYS.push({
-  day: 3, date: "2026-09-30", updated: "2026-09-24", hours: "06:30–22:00",
+  day: 3, date: "2026-09-30", updated: "2026-09-28", hours: "06:30–21:00",
   crewCall: "06:30", onSet: "07:20", sunrise: "05:54", sunset: "17:47", hi: 28, lo: 21,
   rain: L("โอกาสฝนตก 40% ฝนฟ้าคะนอง","降水確率40%・雷雨の可能性","40% chance of rain, thunderstorms"),
   timeline: [
@@ -963,7 +963,7 @@ DAYS.push({
     { type:"loc", name:L("Koko-en Garden","好古園","Koko-en Garden"),
       map:"https://www.google.com/maps/search/?api=1&query=%E5%A5%BD%E5%8F%A4%E5%9C%92%20%E5%A7%AB%E8%B7%AF",
       note:L("เปิด 09:00–17:00","開園 09:00〜17:00","Open 09:00–17:00"),
-      slots:[{ start:"12:30", end:"13:15", dur:L("45 นาที","45分","45 min"), scenes:[
+      slots:[{ start:"12:30", end:"13:20", dur:L("50 นาที","50分","50 min"), scenes:[
         { id:"EP.3 SC.15", ie:"EXT", dn:"D", cast:["oe"], place:L("Koko-en Garden","好古園","Koko-en Garden"),
           desc:L("เอิงเอยเดินเล่น ดูหม่นๆ คิดหาทางตามหา PD กุ้ง จนสุดท้ายเหมือนจะคิดอะไรออก","沈んだ様子で散歩しながらPD Kungの探し方を考えるOeng-Oey。最後に何かを思いついたようだ。","Oeng-Oey strolls, looking gloomy, thinking about how to find PD Kung, until finally she seems to come up with something."),
           support:L("Extra คนญี่ปุ่นในบรรยากาศ x10 (Group 1)","日本人背景エキストラ 10名（グループ1）","Japanese background extras x10 (Group 1)"),
@@ -980,22 +980,27 @@ DAYS.push({
       map:"https://www.google.com/maps/search/?api=1&query=%E5%B1%B1%E9%99%BD%E5%A7%AB%E8%B7%AF%E9%A7%85",
       note:L("เลี่ยงช่วง 06:00–10:00 (Prime Time)","06:00〜10:00（ラッシュ時）は避ける","Avoid 06:00–10:00 (rush hour)"),
       slots:[
-        { start:"13:30", end:"13:45", dur:L("15 นาที","15分","15 min"), scenes:[
+        { start:"13:40", end:"14:10", dur:L("30 นาที","30分","30 min"), scenes:[
+          { id:"EP.7 SC.12", ie:"EXT", dn:"D", cast:["fem"], changed:true, place:L("ถนน (ใกล้สถานี Sanyo)","通り（山陽電車の駅付近）","Street (near Sanyo station)"),
+            desc:L("(Flash Forward) เฟมรีบวิ่งข้ามถนน","（フラッシュフォワード）Fameが急いで道路を走って渡る。","(Flash Forward) Fame hurriedly runs across the road."),
+            ward:L("ชุดไปรเวท 2","私服2","Casual outfit 2") } ]},
+        { start:"14:20", end:"14:30", dur:L("10 นาที","10分","10 min"), scenes:[
           { id:"EP.7 SC.10", ie:"EXT", dn:"D", cast:["fem"], place:L("Sanyo Station — ด้านหน้า","山陽電車の駅 正面","Sanyo station — front"),
             desc:L("(Flash Forward) เฟมวิ่งมาถึงหน้าสถานีรถไฟ ตามเอิงเอย","（フラッシュフォワード）Oeng-Oeyを追って、Fameが駅の前に走って来る。","(Flash Forward) Fame runs up to the front of the train station, chasing Oeng-Oey."),
             ward:L("เฟมไปรเวท 2","Fame：私服2","Fame: casual outfit 2"),
             remark:L("เลี่ยง 06:00–10:00 (Prime Time)","06:00〜10:00（ラッシュ時）は避ける","Avoid 06:00–10:00 (rush hour)") } ]},
-        { start:"13:55", end:"14:10", dur:L("15 นาที","15分","15 min"), scenes:[
+        { start:"14:40", end:"15:00", dur:L("20 นาที","20分","20 min"), scenes:[
           { id:"EP.7 SC.11", ie:"INT", dn:"D", cast:["fem"], place:L("Sanyo Station — ภายใน","山陽電車の駅 構内","Sanyo station — inside"),
+            support:L("Extra คนญี่ปุ่นในบรรยากาศ x10 (Group 2)","日本人背景エキストラ 10名（グループ2）","Japanese background extras x10 (Group 2)"),
             desc:L("(Flash Forward) เฟมวิ่งเข้าไปในสถานี มาหยุดที่สถานีรถไฟ Sanyo เห็นว่ารถไฟกำลังจะออกภายใน 1 นาที เฟมแตะบัตรโดยสารวิ่งเข้าไปด้านใน","（フラッシュフォワード）駅に駆け込んだFameは、電車があと1分で発車すると知る。ICカードをタッチして中へ走り込む。","(Flash Forward) Fame runs into Sanyo station and sees the train leaves in 1 minute. She taps her IC card and runs inside."),
             ward:L("เฟมไปรเวท 2","Fame：私服2","Fame: casual outfit 2") } ]},
-        { start:"14:25", end:"14:45", dur:L("20 นาที","20分","20 min"), scenes:[
+        { start:"15:10", end:"15:25", dur:L("15 นาที","15分","15 min"), scenes:[
           { id:"EP.7 SC.12", ie:"INT", dn:"D", cast:["oe","fem"], place:L("Sanyo Station — ภายใน","山陽電車の駅 構内","Sanyo station — inside"),
             desc:L("(Flash Forward) เฟมเดินขึ้นรถไฟหาเอิงเอยแต่ไม่เจอ จนเดินออกมา รถไฟออก หันไปเจอเอิงเอยที่ยังนั่งยองๆ ร้องไห้อยู่ที่สถานี","（フラッシュフォワード）Fameは電車に乗ってOeng-Oeyを探すが見つからず、降りると電車が発車。振り向くと、駅でしゃがみ込んで泣いているOeng-Oeyがいる。","(Flash Forward) Fame boards the train looking for Oeng-Oey but can't find her. She steps off, the train departs, and she turns to see Oeng-Oey still crouched on the platform, crying."),
             support:L("Extra คนญี่ปุ่นในบรรยากาศ x10 (Group 2)","日本人背景エキストラ 10名（グループ2）","Japanese background extras x10 (Group 2)"),
             art:L("กระเป๋าเดินทางเอิงเอย, โทรศัพท์เอิงเอย, AirPods","Oeng-Oeyのスーツケース、スマホ、AirPods","Oeng-Oey's suitcase, Oeng-Oey's phone, AirPods"),
             ward:L("เอิงเอยไปรเวท 3, เฟมไปรเวท 2","Oeng-Oey：私服3／Fame：私服2","Oeng-Oey: casual outfit 3; Fame: casual outfit 2") } ]},
-        { start:"15:00", end:"15:40", dur:L("40 นาที","40分","40 min"), scenes:[
+        { start:"15:30", end:"15:50", dur:L("20 นาที","20分","20 min"), scenes:[
           { id:"EP.7 SC.14", ie:"INT", dn:"D", cast:["oe"], place:L("บนรถไฟ (รถไฟกำลังเคลื่อน)","電車内（走行中）","On the train (moving)"),
             desc:L("(Montage ประกอบเพลง First Light) เอิงเอยกดเข้าไปดูเมลที่เฟมส่งมา เป็นไฟล์เพลงชื่อเอิงเอย กดเข้าไปฟัง ได้ฟังก็น้ำตาไหล ร้องไห้ / Flash กลับไปในอดีต ความทรงจำดีๆ ของทั้งสองคนไหลเข้ามา","（挿入歌「First Light」のモンタージュ）Oeng-OeyがFameから届いたメールを開くと、「Oeng-Oey」という名の曲のファイル。聴きながら涙があふれる。／二人の楽しかった思い出がフラッシュバックする。","(Montage to the song \"First Light\") Oeng-Oey opens an email from Fame — a song file titled \"Oeng-Oey\". She plays it and tears stream down as she cries. / Flashbacks of their happy memories together flood in."),
             support:L("Extra คนญี่ปุ่นในบรรยากาศ x10 (Group 2)","日本人背景エキストラ 10名（グループ2）","Japanese background extras x10 (Group 2)"),
@@ -1012,7 +1017,7 @@ DAYS.push({
     { type:"loc", name:L("JR Himeji Station — Spot 1, 2","JR姫路駅 スポット1・2","JR Himeji Station — Spot 1, 2"),
       map:"https://www.google.com/maps/search/?api=1&query=JR%E5%A7%AB%E8%B7%AF%E9%A7%85",
       note:L("ซีนกลางวัน แต่พระอาทิตย์ตก 17:47","昼のシーンだが日没は17:47","Day scene, but sunset is 17:47"),
-      slots:[{ start:"16:00", end:"18:30", dur:L("2.30 ชม.","2時間30分","2 hr 30 min"), scenes:[
+      slots:[{ start:"16:00", end:"21:00", dur:L("5 ชม.","5時間","5 hr"), scenes:[
         { id:"EP.1 SC.8", ie:"EXT", dn:"D", cast:["oe"], changed:true, place:L("JR Himeji Station — Spot 1","JR姫路駅 スポット1","JR Himeji Station — Spot 1"),
           desc:L("เอิงเอยมาถึง Himeji หยุดที่ถนนหน้าสถานี JR จุดแลนด์มาร์กที่ผู้คนสัญจรไปมา ด้านหลังเห็นปราสาท Himeji (ดูครึกครื้น) ตื่นเต้น","姫路に着いたOeng-Oeyが、人の行き交うJR駅前の名所で立ち止まる。背景に姫路城（にぎやかな雰囲気）。わくわくしている。","Oeng-Oey arrives in Himeji and stops on the street in front of JR station, a busy landmark, with Himeji Castle behind (lively). She's excited."),
           support:L("Extra คนญี่ปุ่นในบรรยากาศ x10 (Group 2)","日本人背景エキストラ 10名（グループ2）","Japanese background extras x10 (Group 2)"),
@@ -1029,7 +1034,7 @@ DAYS.push({
           desc:L("เฟมแปะโปสเตอร์ตามหา PD กุ้ง ก่อนจะแยกย้ายกับเอิงเอย เฟมบอกให้เอิงเอยลองใช้แชมพูใหม่ที่ซื้อมา","FameがPD Kungの尋ね人ポスターを貼る。Oeng-Oeyと別れる前に「買ってきた新しいシャンプーを使ってみて」と言う。","Fame puts up missing-person posters for PD Kung. Before they part ways, she tells Oeng-Oey to try the new shampoo she bought."),
           art:L("Poster PD กุ้งที่เฟมทำ x10 แผ่น, มือถือ","Fameが作ったPD Kungのポスター 10枚、スマホ","PD Kung posters made by Fame x10, phone"),
           ward:L("เอิงเอยชุดไปรเวท 2, เฟมชุดไปรเวท 2 + กระเป๋าไปข้างนอก","Oeng-Oey：私服2／Fame：私服2＋外出用バッグ","Oeng-Oey: casual outfit 2; Fame: casual outfit 2 + going-out bag") } ]}]},
-    { type:"meal", label:L("พักทานข้าวเย็น","夕食","Dinner break"), start:"18:35", end:"19:15", dur:L("40 นาที","40分","40 min") }
+    { type:"meal", label:L("พักทานข้าวเย็น","夕食","Dinner break"), start:"18:30", end:"19:10", dur:L("40 นาที","40分","40 min") }
   ],
   cast: [
     { ch:"oe", actor:L("ปาล์ม","Palm","Palm"), call:"06:00", onset:"07:25", wrap:"22:00" },
@@ -1044,9 +1049,10 @@ DAYS.push({
   vehicle: L("จักรยานเฟม","Fameの自転車","Fame's bicycle"),
   wardNote: L("Extra x20","エキストラ20名分","Extras x20"),
   checks: [
+    L("Call sheet 28 ก.ย. ระบุเวลาทำงาน 06:30–21:00 แต่นักแสดงหลักยัง EST. WRAP 22:00 — ยืนยันเวลาเลิกของนักแสดง","9/28版コールシートは稼働06:30〜21:00だが、メインキャストの終了予定は22:00のまま — キャスト終了時間を要確認","The 28 Sep call sheet says working hours 06:30–21:00, but main cast EST. WRAP is still 22:00 — confirm cast wrap time"),
+    L("EP.7 SC.12 มี 3 แถวในวันนี้ (ถนนวิว Himeji 09:25, ถนนข้ามถนน 13:40, ในสถานี Sanyo 15:10) รายละเอียดต่างกัน — น่าจะต้องแยกเลขซีน","EP.7 SC.12が本日3行（姫路の道路09:25、道路横断13:40、山陽駅構内15:10）で内容が異なる — シーン番号の整理が必要か","EP.7 SC.12 appears three times today (Himeji road 09:25, street crossing 13:40, inside Sanyo station 15:10) with different content — scene numbers probably need splitting"),
+    L("JR Himeji Station เป็นซีนกลางวัน (D) ทั้ง 3 ซีน แต่บล็อกขยายเป็น 16:00–21:00 และพระอาทิตย์ตก 17:47 — ซีนหลังพระอาทิตย์ตกจะมืด","JR姫路駅の3シーンはすべて昼（D）だが、枠が16:00〜21:00に延長され日没は17:47 — 日没後は暗くなる","All three JR Himeji Station scenes are DAY (D), but the block now runs 16:00–21:00 and sunset is 17:47 — anything after sunset will be dark"),
     L("Daily Script SD3 มี EP.5 SC.12 และ SC.16 แต่ตารางวันนี้ไม่มี (Breakdown ใส่ไว้เป็น PLAN B วันที่ 2)","デイリー台本SD3にEP.5 SC.12・SC.16があるが本日の予定にない（ブレイクダウンでは2日目のPLAN B）","Daily Script SD3 includes EP.5 SC.12 and SC.16, but today's schedule doesn't (Breakdown lists them as Plan B on Day 2)"),
-    L("หลังข้าวเย็น 18:35–19:15 ไม่มีคิวถ่าย แต่เวลาทำงานระบุถึง 22:00 และนักแสดงเลิก 22:00","夕食（18:35〜19:15）後の撮影予定がないが、稼働時間とキャスト終了予定は22:00のまま","Nothing scheduled after dinner (18:35–19:15), yet working hours run to 22:00 and cast wrap is 22:00"),
-    L("JR Himeji Station เป็นซีนกลางวัน (D) ถ่าย 16:00–18:30 แต่พระอาทิตย์ตก 17:47","JR姫路駅は昼（D）のシーンだが16:00〜18:30撮影で、日没は17:47","JR Himeji Station is a day (D) scene shot 16:00–18:30, but sunset is 17:47"),
     L("ถ่ายในปราสาทชั้น 6 ช่วง 07:25–09:00 ก่อนเวลาเปิดปกติ — ยืนยันใบอนุญาต","城内6階の撮影は07:25〜09:00で通常の開城前。許可の確認を","Shooting on the castle 6th floor 07:25–09:00, before normal opening — confirm permit")
   ]
 });
@@ -1835,8 +1841,8 @@ const PREP = [
   // ---- day 3 ----
   { day:3, k:"prep", team:"prod", t:L("เอกสารอนุญาตปราสาทชั้น 6 (07:25–09:00 ก่อนเปิด) + สถานี JR/Sanyo; Extra 20 คน (2 กลุ่ม)","姫路城6階（開城前07:25–09:00）とJR・山陽駅の許可書類を携帯。エキストラ20名（2組）","Carry permits for Himeji Castle 6F (07:25–09:00, before opening) and JR/Sanyo stations; 20 extras (2 groups)") },
   { day:3, k:"prep", team:"art", t:L("เปิดใช้ช่อดอกไม้วันแรก, จักรยานเฟม, ใบปลิว + โปสเตอร์ PD กุ้ง x10, ภาพมือใส่แหวน MINAMI","花束初登場、Fameの自転車、PD Kungのチラシ・ポスター×10、MINAMIの指輪の手元写真","Bouquet first appears, Fame's bicycle, PD Kung flyers + 10 posters, MINAMI ring hand photo") },
-  { day:3, k:"prep", team:"cam", t:L("ซีน JR กลางวัน 3 ซีนถ่าย 16:00–18:30 เลยพระอาทิตย์ตก 17:47 — ขยับขึ้นหรือปรับเป็นแสงเย็น; สถานี Sanyo เผื่อรีเซ็ต 10–15 นาที/รอบ","JR駅の昼シーン3つが16:00–18:30で日没17:47を過ぎる — 前倒しか夕方設定に。山陽駅はリセット毎に10–15分","3 DAY scenes at JR run 16:00–18:30, past sunset 17:47 — move earlier or treat as dusk; Sanyo station: allow 10–15 min per reset") },
-  { day:3, k:"miss", team:"prod", t:L("ลิงก์แผนที่ Himeji Road, รูป Blockshot Koko-en, ช่วง 19:15–22:00 ไม่มีคิว (ปล่อยนักแสดงได้ไหม)","姫路の道路の地図リンク、好古園のブロックショット、19:15–22:00の予定なし（キャスト解放可？）","Missing: map link for Himeji Road, Koko-en blockshots; nothing scheduled 19:15–22:00 (release cast?)") },
+  { day:3, k:"prep", team:"cam", t:L("ซีน JR กลางวัน 3 ซีน บล็อก 16:00–21:00 แต่พระอาทิตย์ตก 17:47 — เก็บซีนกลางวันก่อน 17:30, หลังจากนั้นต้องมีไฟ; สถานี Sanyo เผื่อรีเซ็ต 10–15 นาที/รอบ","JR駅の昼シーン3つ、枠16:00–21:00だが日没17:47 — 昼の画は17:30までに、以降は照明必須。山陽駅はリセット毎に10–15分","3 DAY scenes at JR, block 16:00–21:00 but sunset 17:47 — get daylight shots before 17:30, lighting needed after; Sanyo station: allow 10–15 min per reset") },
+  { day:3, k:"miss", team:"prod", t:L("ลิงก์แผนที่ Himeji Road และจุดข้ามถนน EP.7 SC.12, รูป Blockshot Koko-en, เวลาเลิกนักแสดง (call sheet 21:00 แต่ EST. WRAP 22:00)","姫路の道路とEP.7 SC.12横断地点の地図、好古園のブロックショット、キャスト終了時間（稼働21:00・EST.WRAP 22:00）","Missing: map links for Himeji Road and the EP.7 SC.12 street crossing, Koko-en blockshots, cast wrap time (hours end 21:00 but EST. WRAP 22:00)") },
   // ---- day 4 ----
   { day:4, k:"prep", team:"cam", t:L("ซีนกลางคืน/DFN 12 ซีน — ผ้าดำปิดหน้าต่าง, ไฟ; ไมค์/เครื่องดนตรีบนเวที","夜・DFNシーン12 — 窓の暗幕、照明。ステージのマイク・楽器","12 night/DFN scenes — blackout for windows, lighting; stage mics and instruments") },
   { day:4, k:"prep", team:"art", t:L("เบียร์ปลอม/ไร้แอลกอฮอล์, แก้ว, กระป๋อง; กีต้าร์เอิงเอยสภาพบิ่น","ノンアルコールのビール・グラス・缶。欠けたOeng-Oeyのギター","Fake / non-alcoholic beer, glasses, cans; Oeng-Oey's guitar in chipped state") },
@@ -5979,7 +5985,7 @@ function schedule(d){
     <span><i style="background:var(--ext-n)"></i>${t(UI.legend[4])}</span>
     <span><i style="background:var(--fb)"></i>${t(UI.legend[5])}</span>
   </div>`;
-  h=chgBanner(d)+h;
+  h=chgBanner(d)+h; CHG_SEEN={};
   const isToday=d.date===tokyoDate(), nowM=tokyoMinutes();
   let n=0, shown=0;
   d.timeline.forEach(item=>{
@@ -6018,12 +6024,22 @@ function computeChanges(){
   DAYS.forEach(d=>{ const now=daySigs(d); let prev=null; try{ prev=JSON.parse(store.get("rsn-seen-"+d.day)||"null"); }catch(e){}
     if(!prev){ store.set("rsn-seen-"+d.day,JSON.stringify(now)); return; }
     const c={}, removed=[]; let n=0;
-    Object.keys(now).forEach(k=>{ if(!prev[k]){ c[k]="new"; n++; return; } const f=CHG_FIELDS.filter(x=>prev[k][x]!==now[k][x]); if(f.length){ c[k]=f; n++; } });
-    Object.keys(prev).forEach(k=>{ if(!now[k]){ removed.push(k.split("@")[0]); n++; } });
+    // pair scenes by id@location; when an id repeats at one location, pair identical content first, then by order
+    const base=k=>k.replace(/'+$/,""), groups={};
+    Object.keys(now).forEach(k=>(groups[base(k)]=groups[base(k)]||{now:[],prev:[]}).now.push(k));
+    Object.keys(prev).forEach(k=>(groups[base(k)]=groups[base(k)]||{now:[],prev:[]}).prev.push(k));
+    Object.values(groups).forEach(g=>{
+      const pairs=[], P=[...g.prev];
+      g.now.forEach(k=>{ const i=P.findIndex(q=>prev[q].desc===now[k].desc&&prev[q].place===now[k].place); if(i>=0){ pairs.push([k,P[i]]); P.splice(i,1); } else pairs.push([k,null]); });
+      pairs.forEach(pr=>{ if(!pr[1]&&P.length&&g.now.length===g.prev.length) pr[1]=P.shift(); });
+      pairs.forEach(([k,q])=>{ if(!q){ c[k]="new"; n++; return; } const f=CHG_FIELDS.filter(x=>prev[q][x]!==now[k][x]); if(f.length){ c[k]=f; n++; } });
+      P.forEach(q=>{ removed.push(q.split("@")[0]); n++; });
+    });
     if(n){ c._removed=removed; c._n=n; CHG[d.day]=c; } });
 }
 function ackChanges(day){ const d=DAYS.find(x=>x.day===day); store.set("rsn-seen-"+day,JSON.stringify(daySigs(d))); delete CHG[day]; render(); }
-function chgFor(sc,placeTh){ const c=CHG[dayNo]; if(!c) return null; return c[sc.id+"@"+placeTh]||null; }
+let CHG_SEEN={};
+function chgFor(sc,placeTh){ const c=CHG[dayNo]; let k=sc.id+"@"+placeTh; while(CHG_SEEN[k]) k+="'"; CHG_SEEN[k]=1; if(!c) return null; return c[k]||null; }
 function chgBanner(d){ const c=CHG[d.day]; if(!c) return "";
   return `<div class="chg-banner"><span>🆕 ${t(UI.chgBanner).replace("{n}",c._n)}${c._removed.length?` · ${t(UI.chgRemoved)}: ${c._removed.map(esc).join(", ")}`:""}</span><button type="button" class="btn" data-ack="${d.day}">${t(UI.chgAck)}</button></div>`; }
 
