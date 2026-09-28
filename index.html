@@ -566,6 +566,19 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
   .strip{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 @media print{ .wx-note{-webkit-line-clamp:unset!important;display:block!important} .wx{break-inside:avoid} }
+/* production announcements */
+.ann{background:#FEF9C3;border:1px solid #FDE047;border-radius:12px;padding:10px 14px 8px;margin:12px 0 4px;color:#1C1917}
+[data-theme="dark"] .ann{background:#2A2505;border-color:#854D0E;color:var(--ink)}
+.ann h3{margin:0 0 6px;font-size:15px}
+.ann h3 small{font-weight:500;color:var(--ink-3);font-size:12px;margin-left:4px}
+.ann ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.ann li{display:flex;gap:8px;font-size:14px;line-height:1.45}
+.ann li span{flex:0 0 20px;text-align:center}
+.ann li.warn{font-weight:700;color:#B45309}
+[data-theme="dark"] .ann li.warn{color:#FBBF24}
+.ann a{font-weight:600;white-space:nowrap}
+@media (min-width:1000px){ .ann ul{grid-template-columns:1fr 1fr;gap:4px 18px} }
+@media print{ .ann{border-color:#999;background:#fff} }
 </style>
 </head>
 <body>
@@ -1885,6 +1898,18 @@ const JPTEAM = [
     [L("Prod.Service","制作サービス","Prod. Service"), L("น้อยหน่า","Noina","Noina")],
     [L("ล่าม","通訳","Interpreter"), L("มะม่วง","Mamuang","Mamuang")],
     [L("ล่าม","通訳","Interpreter"), L("บูกี้","Boogie","Boogie")] ]}
+];
+
+/* Daily announcements from production (shown at the top of that day). posted = date of the notice. */
+const ANNOUNCE = [
+  { day:2, posted:"2026-09-29", items:[
+    { icon:"🍳", t:L("อาหารเช้า 06:30","朝食 6:30","Breakfast 06:30") },
+    { icon:"🚐", t:L("ออกจากโรงแรม 07:15","ホテル出発 7:15","Leave the hotel 07:15") },
+    { icon:"📍", t:L("โลเคชั่น: ตลาดฮิเมจิ","ロケ地：姫路の商店街","Location: Himeji market") },
+    { icon:"🏠", t:L("Base Location: ร้าน Nishimatsuya (西松屋) 57 Konyamachi, Himeji","ベース：西松屋（姫路市紺屋町57）","Base location: Nishimatsuya store, 57 Konyamachi, Himeji"), map:"https://maps.app.goo.gl/tQeQYNtVNgR2bCxg6" },
+    { icon:"🅿️", t:L("รถทุกคันส่งทีมงานและอุปกรณ์เรียบร้อยแล้ว นำรถกลับมาจอดที่โรงแรม ยกเว้นรถอุปกรณ์ (VAN 3) จะแจ้งที่จอดให้พรุ่งนี้เช้า","全車両はスタッフと機材を降ろした後ホテルに戻って駐車。機材車（VAN 3）の駐車場所は明朝連絡","After dropping off crew and equipment, all vans return to park at the hotel — except the equipment van (VAN 3); its parking will be announced tomorrow morning") },
+    { icon:"☔", t:L("สภาพอากาศมีฝน ขอให้ทีมงานทุกคนพกเสื้อกันฝนมาทำงาน","雨予報のため、全スタッフはレインウェアを持参してください","Rain expected — everyone please bring a raincoat"), warn:true }
+  ]}
 ];
 
 /* Shooting Board (RSN_STB Working file.key) — blockshot frames per scene.
@@ -5405,6 +5430,7 @@ const UI = {
   nowBtn: L("ตอนนี้","現在","Now"), nowNext: L("ถัดไป","次","Next"), printBtn: L("พิมพ์ / PDF","印刷・PDF","Print / PDF"),
   printed: L("พิมพ์จาก RESONANCE Breakdown","RESONANCE ブレイクダウンより印刷","Printed from RESONANCE Breakdown"),
   prepDone: L("เสร็จ {d}/{t}","完了 {d}/{t}","Done {d}/{t}"),
+  annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
   sos: L("เบอร์ฉุกเฉิน","緊急連絡先","Emergency numbers"), sosLead: L("แตะเบอร์เพื่อโทรได้ทันที","番号をタップで発信","Tap a number to call"), sosTip: L("บอกที่อยู่ได้จากปุ่ม Google Maps ของโลเคชั่น","住所はロケ地のGoogleマップボタンで確認","Get the address from the location's Google Maps button"),
   prepH: L("เตรียมตัว / ยังขาด","準備・不足情報","Prep / still missing"), prepLead: L("รวบรวมจาก Breakdown, พยากรณ์, บท, บอร์ด และคอสตูมบุ๊ก — กรองตามทีมได้","ブレイクダウン・天気・台本・ボード・衣装ブックから集約 — チーム別に絞り込み可","Compiled from the breakdown, forecast, script, board and costume book — filter by team"),
   prepDo: L("ต้องเตรียม","準備すること","To prepare"), prepMiss: L("ยังขาดข้อมูล","不足している情報","Still missing"), prepAll: L("ทั้งทริป","全日程共通","Whole shoot"), prepGo: L("รายการเตรียมตัว","準備リスト","Prep list"),
@@ -5642,6 +5668,7 @@ function head(d){
     <div class="sub">${esc(t(UI.dayOf).replace("{d}",d.day).replace("{t}",TOTAL_DAYS))} · <b>${d.hours}</b> · <span class="upd">${t(UI.updated)} ${esc(fmtDate(d.updated,false))}</span></div>
     ${d.subtitle?`<div class="sub2">${esc(t(d.subtitle))}</div>`:""}
     <ol class="route">${locs.map((n,i)=>`<li><i>${i+1}</i>${esc(n)}</li>`).join("")}</ol>
+    ${annBlock(d)}
     ${tab===0?`<div class="dh-grid"><div class="dh-a"><div class="stats">
       <div><span>${t(UI.crewCall)}</span><b>${d.crewCall}</b></div>
       <div><span>${t(UI.onSet)}</span><b>${d.onSet}</b></div>
@@ -5655,6 +5682,11 @@ function head(d){
   </section>`;
 }
 
+function annBlock(d){
+  if(typeof ANNOUNCE==="undefined") return "";
+  const a=ANNOUNCE.filter(x=>x.day===d.day); if(!a.length) return "";
+  return a.map(x=>`<section class="ann"><h3>📣 ${t(UI.annH)} <small>${esc(fmtDate(x.posted,false))}</small></h3><ul>${x.items.map(it=>`<li class="${it.warn?"warn":""}"><span>${it.icon||"•"}</span><div>${esc(t(it.t))}${it.map?` <a href="${esc(it.map)}" target="_blank" rel="noopener">📍 Google Maps</a>`:""}</div></li>`).join("")}</ul></section>`).join("");
+}
 function wxBlock(d,w){
   const lbl=["00","06","12","18"];
   const cls=w.pop>=70?"wx-bad":w.pop>=40?"wx-mid":"wx-ok";
