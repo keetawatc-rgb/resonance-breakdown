@@ -606,6 +606,21 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 @media (min-width:1000px){ .train-leg{grid-template-columns:1fr 1fr} }
 @media print{ .train .go,.train .back{background:none} }
 @media (max-width:520px){ .train table{font-size:12.5px;min-width:0} .train th,.train td{padding:5px 4px} .train td small{display:block} .train .fit-tag{display:block;width:max-content;margin:2px 0 0} .train td.back{white-space:normal;min-width:48px} .train th{white-space:normal} }
+.train-clock{margin:0 12px 6px;font-size:14px}
+.train-clock b{font-size:17px;font-variant-numeric:tabular-nums}
+.train-clock .muted{color:var(--ink-3);font-size:12.5px}
+.train tr.st td{padding:0 7px 6px;border-bottom:1px solid var(--line);white-space:normal;font-size:12.5px;font-weight:600;background:none}
+.train tr[data-tr]:has(+ tr.st:not([hidden])) td{border-bottom:0}
+.train tr.st td.wait{color:var(--ink-2)}
+.train tr.st td.plat{color:#15803D}
+.train tr.st td.run{color:#C2410C}
+.train tr.st td.ret{color:#1D4ED8}
+.train tr.st td.gone{color:var(--ink-3);font-weight:500}
+[data-theme="dark"] .train tr.st td.plat{color:#4ADE80}
+[data-theme="dark"] .train tr.st td.run{color:#FB923C}
+[data-theme="dark"] .train tr.st td.ret{color:#93C5FD}
+.train tr.past td{opacity:.45}
+.train tr.next td:first-child b{background:#16A34A;color:#fff;border-radius:5px;padding:0 4px}
 </style>
 </head>
 <body>
@@ -5485,7 +5500,13 @@ const UI = {
   train: { h:L("ตารางรถไฟ","電車の時刻表","Train timetable"), no:L("ขบวน / เบาะ","列車番号 / 座席","Train / seats"),
     go:L("ออกฮิเมจิ","山陽姫路 発","Dep. Himeji"), goS:L("เข้าชานชาลา → ออก","着 → 発","arr → dep"), arr:L("ถึง","着","Arr."), him:L("ฮิเมจิ","姫路","Himeji"),
     local:L("กลับ ธรรมดา","戻り 普通","Back local"), exp:L("กลับ ด่วน","戻り 特急","Back express"),
-    fit:L("ตรงคิวถ่าย","撮影枠内","in shoot slot"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
+    fit:L("ตรงคิวถ่าย","撮影枠内","in shoot slot"),
+    nowL:L("เวลาตอนนี้ (ญี่ปุ่น)","現在時刻","Now (Japan)"), notToday:L("นับถอยหลังจะแสดงวันที่ {d}","カウントダウンは{d}に表示","Countdown shows on {d}"),
+    min:L("{m} นาที","{m}分","{m} min"), hm:L("{h} ชม. {m} นาที","{h}時間{m}分","{h} h {m} min"),
+    comeIn:L("อีก {t} รถไฟจะเข้าชานชาลา","あと{t}で到着","Arrives at the platform in {t}"), dep:L("ออก","発","dep."),
+    atPf:L("จอดอยู่ที่ชานชาลา · ออกในอีก {t}","停車中 · あと{t}で発車","At the platform · departs in {t}"),
+    running:L("กำลังวิ่ง (ถ่ายทำ) · ถึง Oshio อีก {t}","走行中（撮影）· 大塩まであと{t}","Running (shooting) · Oshio in {t}"),
+    back:L("ขากลับ · ถึงฮิเมจิอีก {t}","戻り · 姫路まであと{t}","Returning · Himeji in {t}"), gone:L("ผ่านไปแล้ว","通過済み","Done"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
   annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
   sos: L("เบอร์ฉุกเฉิน","緊急連絡先","Emergency numbers"), sosLead: L("แตะเบอร์เพื่อโทรได้ทันที","番号をタップで発信","Tap a number to call"), sosTip: L("บอกที่อยู่ได้จากปุ่ม Google Maps ของโลเคชั่น","住所はロケ地のGoogleマップボタンで確認","Get the address from the location's Google Maps button"),
   prepH: L("เตรียมตัว / ยังขาด","準備・不足情報","Prep / still missing"), prepLead: L("รวบรวมจาก Breakdown, พยากรณ์, บท, บอร์ด และคอสตูมบุ๊ก — กรองตามทีมได้","ブレイクダウン・天気・台本・ボード・衣装ブックから集約 — チーム別に絞り込み可","Compiled from the breakdown, forecast, script, board and costume book — filter by team"),
@@ -5707,6 +5728,7 @@ function render(){
   const main=document.getElementById("main");
   if(!d){ main.innerHTML=`<p class="empty">${t(UI.soon)}</p>`; return; }
   main.innerHTML=head(d)+(tab===0?schedule(d):tab===1?shotsTab(d):tab===2?calls(d):tab===3?notes(d):tab===4?costumeTab(d):scriptTab(d));
+  tickTrains();
   document.getElementById("foot").textContent=t(UI.foot);
   document.getElementById("shareH").textContent=t(UI.shareH);
   document.getElementById("shareP").textContent=t(UI.shareP);
@@ -5745,11 +5767,37 @@ function trainBlock(d,item){
   const fit=r=>r.seat!=="△"&&slots.some(s=>mins(r.hD)<mins(s.end)&&mins(r.oA)>mins(s.start));
   const U=UI.train;
   return `<details class="train" open><summary>🚃 ${esc(t(U.h))} — ${esc(t(T.line))}</summary>
+    <div class="train-clock" data-date="${d.date}"></div>
     <div class="train-scroll"><table><thead><tr><th>${t(U.no)}</th><th class="go">${t(U.go)}<small>${t(U.goS)}</small></th><th class="go">${t(U.arr)}<small>Oshio</small></th><th class="back">${t(U.local)}<small>→ ${t(U.him)}</small></th><th class="back">${t(U.exp)}<small>→ ${t(U.him)}</small></th></tr></thead><tbody>
-    ${T.rows.map(r=>`<tr class="${r.seat==="△"?"bad":""}${fit(r)?" fit":""}"><td><b>${r.no}</b> <span class="seat">${r.seat}</span>${fit(r)?` <span class="fit-tag">${t(U.fit)}</span>`:""}</td><td class="go"><small>${r.hA} →</small> <b>${r.hD}</b></td><td class="go">${r.oA}</td><td class="back">${r.oD} → ${r.hR}</td><td class="back">${r.xD} → ${r.xA}</td></tr>`).join("")}
+    ${T.rows.map(r=>`<tr class="${r.seat==="△"?"bad":""}${fit(r)?" fit":""}" data-tr="${[r.hA,r.hD,r.oA,r.hR].join(" ")}"><td><b>${r.no}</b> <span class="seat">${r.seat}</span>${fit(r)?` <span class="fit-tag">${t(U.fit)}</span>`:""}</td><td class="go"><small>${r.hA} →</small> <b>${r.hD}</b></td><td class="go">${r.oA}</td><td class="back">${r.oD} → ${r.hR}</td><td class="back">${r.xD} → ${r.xA}</td></tr><tr class="st"><td colspan="5"></td></tr>`).join("")}
     </tbody></table></div>
     <ul class="train-leg">${Object.entries(T.seats).map(([k,v])=>`<li class="${k==="△"?"bad":""}"><span class="seat">${k}</span> ${esc(t(v))}</li>`).join("")}</ul>
     <p class="train-note"><span class="sw go"></span>${t(U.goL)} <span class="sw back"></span>${t(U.backL)}<br>${esc(t(T.note))}</p></details>`;
+}
+function tokyoSecs(){ const q=qs.get("trainnow"); if(q) return mins(q)*60; const p=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(new Date()); const g=k=>+p.find(x=>x.type===k).value; return g("hour")*3600+g("minute")*60+g("second"); }
+function durTxt(sec){ const m=Math.ceil(sec/60); if(m<60) return t(UI.train.min).replace("{m}",m); return t(UI.train.hm).replace("{h}",Math.floor(m/60)).replace("{m}",m%60); }
+function tickTrains(){
+  const boxes=document.querySelectorAll(".train"); if(!boxes.length) return;
+  const U=UI.train, now=tokyoSecs(), hh=n=>String(n).padStart(2,"0");
+  const clock=`${hh(Math.floor(now/3600)%24)}:${hh(Math.floor(now/60)%60)}:${hh(now%60)}`;
+  boxes.forEach(box=>{
+    const c=box.querySelector(".train-clock"), today=qs.get("trainnow")||c.dataset.date===tokyoDate();
+    c.innerHTML=`🕒 ${t(U.nowL)} <b>${clock}</b> <small>JST</small>${today?"":` · <span class="muted">${esc(t(U.notToday).replace("{d}",fmtDate(c.dataset.date,false)))}</span>`}`;
+    let next=null;
+    box.querySelectorAll("tr[data-tr]").forEach(tr=>{
+      const [hA,hD,oA,hR]=tr.dataset.tr.split(" ").map(x=>mins(x)*60), st=tr.nextElementSibling.firstElementChild, bad=tr.classList.contains("bad");
+      let cls="", txt="";
+      if(!today){ txt=""; }
+      else if(now<hA){ txt=`⏳ ${t(U.comeIn).replace("{t}",durTxt(hA-now))} <small>(${t(U.dep)} ${tr.dataset.tr.split(" ")[1]})</small>`; cls="wait"; if(!bad&&!next) next=tr; }
+      else if(now<hD){ txt=`🚉 ${t(U.atPf).replace("{t}",durTxt(hD-now))}`; cls="plat"; if(!bad&&!next) next=tr; }
+      else if(now<oA){ txt=`🎬 ${t(U.running).replace("{t}",durTxt(oA-now))}`; cls="run"; }
+      else if(now<hR){ txt=`↩︎ ${t(U.back).replace("{t}",durTxt(hR-now))}`; cls="ret"; }
+      else { txt=t(U.gone); cls="gone"; }
+      st.className=cls; st.innerHTML=txt; tr.classList.toggle("past",cls==="gone"); tr.nextElementSibling.hidden=!today;
+      tr.classList.remove("next");
+    });
+    if(next) next.classList.add("next");
+  });
 }
 function annBlock(d){
   if(typeof ANNOUNCE==="undefined") return "";
@@ -6493,6 +6541,7 @@ window.addEventListener("online",()=>{ netBanner(); loadLiveWx(); loadMaps(); lo
 loadLiveWx(); setInterval(()=>{ if(!document.hidden) loadLiveWx(); },30*60000);
 loadMaps(); loadParking(); loadPrepDone(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } }); setInterval(()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } },60000);
 nowFab(); setInterval(nowFab,60000);
+setInterval(()=>{ if(!document.hidden) tickTrains(); },1000);
 setInterval(()=>{ if(tab===0 && DAYS.some(d=>d.day===dayNo && d.date===tokyoDate())) render(); },60000);
 
 </script>
