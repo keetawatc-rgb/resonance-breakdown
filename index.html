@@ -621,6 +621,33 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 [data-theme="dark"] .train tr.st td.ret{color:#93C5FD}
 .train tr.past td{opacity:.45}
 .train tr.next td:first-child b{background:#16A34A;color:#fff;border-radius:5px;padding:0 4px}
+/* scene shooting status */
+.st-bar{display:flex;gap:6px;flex-wrap:wrap;padding:2px 12px 6px}
+.scene > .body > .st-note{margin:0 12px 8px}
+.st-b{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:4px 10px;min-height:32px;cursor:pointer;white-space:nowrap}
+.st-done[aria-pressed="true"]{background:#16A34A;border-color:#16A34A;color:#fff}
+.st-not[aria-pressed="true"]{background:#DC2626;border-color:#DC2626;color:#fff}
+.st-note{font-size:13px;margin:6px 0 2px;padding:6px 9px;border-radius:8px;background:var(--chip);color:var(--ink);white-space:pre-wrap}
+.scene.is-done{opacity:.62}
+.scene.is-done .sid::after{content:" ✓";color:#16A34A}
+.scene.is-not{box-shadow:0 0 0 2px #DC2626 inset}
+.scene.flash{animation:stflash 1.6s}
+@keyframes stflash{0%,60%{box-shadow:0 0 0 4px #F59E0B}100%{box-shadow:none}}
+.ns-sec{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;margin:12px 0}
+.ns-sec.has{border-color:#FCA5A5}
+.ns-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ns-sec h3{margin:0;font-size:15px}
+.ns-n{display:inline-block;min-width:22px;text-align:center;border-radius:999px;background:var(--chip);padding:0 7px;font-size:13px}
+.ns-sec.has .ns-n{background:#DC2626;color:#fff}
+.ns-prog{font-size:13px;color:var(--ink-2);font-weight:600}
+.ns-progbar{height:6px;border-radius:3px;background:var(--chip);margin:8px 0 6px;overflow:hidden}
+.ns-progbar i{display:block;height:100%;background:#16A34A}
+.ns-list{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:6px}
+.ns-go{font:inherit;font-size:14px;text-align:left;width:100%;border:0;background:none;color:var(--ink);padding:4px 0;cursor:pointer;display:flex;gap:6px;flex-wrap:wrap;align-items:baseline}
+.ns-go .ns-pl{color:var(--ink-2);font-size:13px}
+.ns-none{margin:4px 0 0;font-size:13px;color:var(--ink-3)}
+@media (min-width:1000px){ .ns-list{grid-template-columns:1fr 1fr;gap:6px 18px} }
+@media print{ .st-bar{display:none} }
 </style>
 </head>
 <body>
@@ -5536,6 +5563,10 @@ const UI = {
   less: L("ซ่อนรายละเอียด","詳細を閉じる","Hide details"),
   now: L("ตอนนี้","現在","Now"),
   noScene: L("ไม่มีซีนของตัวละครนี้ในวันนี้","このキャラクターの出番は本日ありません","This character has no scenes today"),
+  st: { done:L("ถ่ายแล้ว","撮影済み","Shot"), not:L("ยังไม่ได้ถ่าย","未撮影","Not shot"), note:L("หมายเหตุ","メモ","Note"),
+    prompt:L("หมายเหตุสำหรับ {s} (เช่น เหตุผลที่ไม่ได้ถ่าย / ย้ายไปวันไหน) — เว้นว่างเพื่อลบ","{s} のメモ（未撮影の理由・移動先の日など）— 空欄で削除","Note for {s} (e.g. why not shot / moved to which day) — leave empty to clear"),
+    sumH:L("ซีนที่ยังไม่ได้ถ่าย (ค้าง)","未撮影シーン（持ち越し）","Scenes not shot yet (carried over)"), none:L("ไม่มีซีนค้าง 👍","未撮影シーンなし 👍","No scenes carried over 👍"),
+    prog:L("ถ่ายแล้ว {a}/{b} ซีน","撮影済み {a}/{b}","{a}/{b} scenes shot"), by:L("อัปเดต","更新","updated") },
   f: { support:L("นักแสดงสมทบ / Extra","サポート・エキストラ","Supporting cast / Extras"), art:L("ศิลป์ & พร็อพ","美術・小道具","Art & props"), ward:L("เสื้อผ้า","衣装","Wardrobe"), remark:L("หมายเหตุ / Post","備考・ポスト","Notes / Post") },
   wrap: L("IT'S A WRAP! ขอบคุณทุกคน","撮了！お疲れさまでした","IT'S A WRAP! Thank you, everyone"),
   castH: L("นักแสดงหลัก","メインキャスト","Main cast"),
@@ -6134,7 +6165,7 @@ function schedule(d){
     <span><i style="background:var(--ext-n)"></i>${t(UI.legend[4])}</span>
     <span><i style="background:var(--fb)"></i>${t(UI.legend[5])}</span>
   </div>`;
-  h=chgBanner(d)+h; CHG_SEEN={};
+  h=chgBanner(d)+notShotSec(d)+h; CHG_SEEN={};
   const isToday=d.date===tokyoDate(), nowM=tokyoMinutes();
   let n=0, shown=0;
   d.timeline.forEach(item=>{
@@ -6197,7 +6228,8 @@ function scene(sc){
   const key=dayNo+"|"+sc.id+"|"+t(sc.place);
   const open=openSet.has(key);
   const rows=["support","art","ward","remark"].filter(k=>sc[k]).map(k=>`<dt>${t(UI.f[k])}</dt><dd class="${k==="remark"?"rmk":""}">${esc(t(sc[k]))}</dd>`).join("");
-  return `<article class="scene${open?" open":""}">
+  const sst=(SSTAT[sc._k]||{}).status;
+  return `<article class="scene${open?" open":""}${sst==="done"?" is-done":sst==="notshot"?" is-not":""}" data-sk="${sc._k||""}">
     <div class="strip ${stripClass(sc)}">${esc(sc.ie)}<small>${esc(sc.dn)}</small></div>
     <div class="body">
       <button type="button" class="sum" data-key="${esc(key)}" aria-expanded="${open}">
@@ -6209,6 +6241,7 @@ function scene(sc){
         <p class="desc">${esc(t(sc.desc))}</p>
         ${sc.cast.length?`<div class="cast">${sc.cast.map(c=>`<span>${esc(t(CHAR[c]))}</span>`).join("")}</div>`:""}
       </button>
+      ${stBar(sc)}
       <div class="scr-row"><button type="button" class="scr-btn" data-scr="${esc(sc.id)}">📄 ${t(UI.scr.read)}</button></div>
       ${sbStrip(sc)}
       ${cbThumbs(sc)}
@@ -6420,6 +6453,29 @@ function deptRows(d){
   return rows;
 }
 
+let SSTAT={};
+DAYS.forEach(d=>d.timeline.forEach(it=>{ if(it.type!=="loc") return; it.slots.forEach(sl=>sl.scenes.forEach(sc=>{ sc._day=d.day; sc._k="s"+d.day+"-"+hashKey(sc.id+"|"+(sc.place&&sc.place.th||"")+"|"+sl.start); sc._loc=it.name; sc._start=sl.start; })); }));
+function allScenes(){ const a=[]; DAYS.forEach(d=>d.timeline.forEach(it=>{ if(it.type==="loc") it.slots.forEach(sl=>sl.scenes.forEach(sc=>a.push(sc))); })); return a; }
+async function loadSceneStat(){ if(!SB) return; try{ const r=await sbFetch("/rest/v1/scenestat?select=id,status,note,updated_at"); const m={}; (await r.json()).forEach(x=>{ if(x.status||x.note) m[x.id]={status:x.status,note:x.note||"",at:x.updated_at}; }); if(JSON.stringify(m)!==JSON.stringify(SSTAT)){ SSTAT=m; if(tab===0) render(); } }catch(e){} }
+async function saveSceneStat(sc,patch){
+  const old=SSTAT[sc._k], cur=Object.assign({status:null,note:""},old,patch,{at:new Date().toISOString()});
+  if(cur.status||cur.note) SSTAT[sc._k]=cur; else delete SSTAT[sc._k]; render();
+  try{ await sbFetch("/rest/v1/scenestat",{method:"POST",headers:{"Content-Type":"application/json",Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({id:sc._k,day:sc._day,status:cur.status,note:cur.note||null,updated_at:cur.at})}); }
+  catch(e){ if(old) SSTAT[sc._k]=old; else delete SSTAT[sc._k]; render(); toast(t(UI.mapErr)); } }
+function sceneByKey(k){ return allScenes().find(x=>x._k===k); }
+function stBar(sc){
+  if(!SB||!sc._k) return ""; const st=SSTAT[sc._k]||{}, U=UI.st;
+  return `<div class="st-bar"><button type="button" class="st-b st-done" data-st="${sc._k}|done" aria-pressed="${st.status==="done"}">✓ ${t(U.done)}</button><button type="button" class="st-b st-not" data-st="${sc._k}|notshot" aria-pressed="${st.status==="notshot"}">✕ ${t(U.not)}</button><button type="button" class="st-b st-nt" data-st="${sc._k}|note">📝 ${t(U.note)}</button></div>${st.note?`<div class="st-note">📝 ${esc(st.note)}</div>`:""}`;
+}
+function notShotSec(d){
+  if(!SB) return ""; const U=UI.st, all=allScenes();
+  const mine=all.filter(x=>x._day===d.day), done=mine.filter(x=>(SSTAT[x._k]||{}).status==="done").length;
+  const ns=all.filter(x=>(SSTAT[x._k]||{}).status==="notshot");
+  const rows=ns.map(x=>`<li><button type="button" class="ns-go" data-stgo="${x._day}|${x._k}"><b>${t(UI.day)} ${x._day}</b> <span class="sid">${esc(x.id)}</span> <span class="ns-pl">${esc(t(x.place))}</span></button>${SSTAT[x._k].note?`<div class="st-note">📝 ${esc(SSTAT[x._k].note)}</div>`:""}</li>`).join("");
+  return `<section class="ns-sec${ns.length?" has":""}"><div class="ns-top"><h3>🎬 ${t(U.sumH)} <b class="ns-n">${ns.length}</b></h3><span class="ns-prog">${t(U.prog).replace("{a}",done).replace("{b}",mine.length)}</span></div>
+    <div class="ns-progbar"><i style="width:${mine.length?Math.round(done/mine.length*100):0}%"></i></div>
+    ${ns.length?`<ul class="ns-list">${rows}</ul>`:`<p class="ns-none">${t(U.none)}</p>`}</section>`;
+}
 let prepTeam="all", PDONE={};
 function prepId(x){ return "p"+x.day+"-"+hashKey(x.team+"|"+x.t.th); }
 async function loadPrepDone(){ if(!SB) return; try{ const r=await sbFetch("/rest/v1/prepdone?select=id,done"); const m={}; (await r.json()).forEach(x=>{ if(x.done) m[x.id]=1; }); if(JSON.stringify(m)!==JSON.stringify(PDONE)){ PDONE=m; if(tab===3||tab===0) render(); } }catch(e){} }
@@ -6488,6 +6544,10 @@ document.addEventListener("click",async e=>{
   if(b.dataset.mapedit){ editMap(b); return; }
   if(b.dataset.parkedit){ editPark(b); return; }
   if(b.dataset.prep){ togglePrep(b.dataset.prep); return; }
+  if(b.dataset.st){ const [k,a]=b.dataset.st.split("|"), sc=sceneByKey(k); if(!sc) return; const cur=SSTAT[k]||{};
+    if(a==="note"||(a==="notshot"&&cur.status!=="notshot")){ const n=prompt(t(UI.st.prompt).replace("{s}",sc.id),cur.note||""); if(n===null) return; saveSceneStat(sc,Object.assign({note:n.trim().slice(0,500)},a==="note"?{}:{status:"notshot"})); }
+    else saveSceneStat(sc,{status:cur.status===a?null:a}); return; }
+  if(b.dataset.stgo){ const [dy,k]=b.dataset.stgo.split("|"); dayNo=+dy; tab=0; who="all"; render(); setTimeout(()=>{ const el=document.querySelector(`[data-sk="${CSS.escape(k)}"]`); if(el){ el.scrollIntoView({block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1600);} },30); return; }
   if(b.dataset.ack){ ackChanges(+b.dataset.ack); return; }
   if(b.dataset.print){ printDay(); return; }
   if(b.dataset.restore){ try{ await DB.collection("blockshots").doc(b.dataset.restore).restore(); toast(t(UI.bs.restored)); }catch(e){ toast(t(UI.mapErr)); } return; }
@@ -6539,7 +6599,7 @@ function netBanner(){ let el=document.getElementById("offline"); if(!el){ el=doc
   el.textContent=t(UI.offline); el.classList.toggle("show",!navigator.onLine); }
 window.addEventListener("online",()=>{ netBanner(); loadLiveWx(); loadMaps(); loadParking(); }); window.addEventListener("offline",netBanner); netBanner();
 loadLiveWx(); setInterval(()=>{ if(!document.hidden) loadLiveWx(); },30*60000);
-loadMaps(); loadParking(); loadPrepDone(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } }); setInterval(()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } },60000);
+loadMaps(); loadParking(); loadPrepDone(); loadSceneStat(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); loadSceneStat(); } }); setInterval(()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } },60000); setInterval(()=>{ if(!document.hidden) loadSceneStat(); },20000);
 nowFab(); setInterval(nowFab,60000);
 setInterval(()=>{ if(!document.hidden) tickTrains(); },1000);
 setInterval(()=>{ if(tab===0 && DAYS.some(d=>d.day===dayNo && d.date===tokyoDate())) render(); },60000);
