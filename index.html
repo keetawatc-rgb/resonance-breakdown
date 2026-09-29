@@ -648,6 +648,46 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .ns-none{margin:4px 0 0;font-size:13px;color:var(--ink-3)}
 @media (min-width:1000px){ .ns-list{grid-template-columns:1fr 1fr;gap:6px 18px} }
 @media print{ .st-bar{display:none} }
+/* summary tab */
+.sum-hero{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px;margin:14px 0}
+.sum-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sum-kpis div{background:var(--chip);border-radius:10px;padding:10px 6px;text-align:center}
+.sum-kpis b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.sum-kpis span{font-size:12px;color:var(--ink-2);font-weight:600}
+.sum-kpis .k-done b{color:#16A34A}
+.sum-kpis .k-ns b{color:#DC2626}
+.sum-pct{display:flex;align-items:center;gap:10px;margin:12px 0 4px}
+.sum-pct b{font-size:18px;min-width:48px}
+.sum-pct .sum-bar{flex:1;height:10px}
+.sum-note{font-size:12px;color:var(--ink-3);margin:6px 0 0}
+.sum-bar{display:flex;height:7px;border-radius:4px;background:var(--chip);overflow:hidden}
+.sum-bar i{display:block;height:100%}
+.b-done{background:#16A34A}
+.b-ns{background:#DC2626}
+.sum-days{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.sum-day{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 12px;cursor:pointer;display:grid;gap:7px}
+.sum-day.today{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset}
+.sum-day.has-ns{border-color:#FCA5A5}
+.sd-h{display:flex;gap:6px;align-items:baseline}
+.sd-h span{font-size:12.5px;color:var(--ink-3)}
+.sd-h .sd-ok{margin-left:auto;color:#16A34A;font-weight:800;font-size:15px}
+.sd-n{display:flex;gap:8px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.c-done{color:#16A34A}
+.c-ns{color:#DC2626}
+.sd-n .c-p{color:var(--ink-3);font-weight:600}
+.sd-n .c-t{margin-left:auto;color:var(--ink-2)}
+.sum-leg{display:flex;gap:14px;font-size:12px;color:var(--ink-2);margin-top:8px}
+.sum-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--chip);margin-right:4px;vertical-align:-1px}
+.sum-ep{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.sum-ep th,.sum-ep td{padding:6px 5px;border-bottom:1px solid var(--line);text-align:center}
+.sum-ep th{font-size:11.5px;color:var(--ink-2)}
+.sum-ep td:first-child,.sum-ep th:first-child{text-align:left}
+.sum-ep .ep-bar{width:28%}
+.ns-prog{font:inherit;border:0;background:none;cursor:pointer;padding:0}
+@media (min-width:700px){ .sum-days{grid-template-columns:repeat(4,1fr)} }
+@media (max-width:420px){ .sum-kpis b{font-size:22px} .sum-kpis span{font-size:11px} .sum-ep .ep-bar{display:none} }
+.sum-leg i.b-done{background:#16A34A}
+.sum-leg i.b-ns{background:#DC2626}
 </style>
 </head>
 <body>
@@ -5495,7 +5535,7 @@ const CREW = [
 
 const UI = {
   sub: L("Breakdown การถ่ายทำ","撮影ブレイクダウン","Shooting Breakdown"),
-  tabs: [L("ตารางถ่าย","スケジュール","Schedule"), L("Blockshot","ブロックショット","Blockshot"), L("เวลาเรียก","コール時間","Call times"), L("ข้อมูลฝ่าย","部署メモ","Dept. notes"), L("เสื้อผ้า","衣装","Wardrobe"), L("บท","台本","Script")],
+  tabs: [L("ตารางถ่าย","スケジュール","Schedule"), L("Blockshot","ブロックショット","Blockshot"), L("เวลาเรียก","コール時間","Call times"), L("ข้อมูลฝ่าย","部署メモ","Dept. notes"), L("เสื้อผ้า","衣装","Wardrobe"), L("บท","台本","Script"), L("สรุปซีน","撮影サマリー","Summary")],
   scr: { read:L("อ่านบท","台本を読む","Read script"), loading:L("กำลังโหลดบท…","台本を読み込み中…","Loading script…"), fail:L("โหลดบทไม่สำเร็จ ลองใหม่อีกครั้ง","台本を読み込めませんでした","Couldn't load the script. Please try again."), none:L("ไม่พบซีนนี้ใน Daily Script","このシーンはデイリー台本にありません","This scene isn't in the Daily Script"),
     lead:L("Daily Script SD {d} (อัปเดต 24/09/26) เรียงตามลำดับในบท แตะเลขซีนเพื่อข้ามไป","デイリー台本 SD {d}（2026/09/24更新）台本の順番どおり。シーン番号をタップで移動","Daily Script SD {d} (updated 24/09/26), in script order. Tap a scene number to jump to it"),
     tr:L("","※ 台本はタイ語原稿からの翻訳です（撮影用参考訳）","※ Script translated from the Thai original (reference translation for the shoot)"), byDay:L("ตามวันถ่าย (Daily Script)","撮影日別（デイリー台本）","By shooting day (Daily Script)"), byEp:L("บทเต็มตาม EP","エピソード別（完成台本）","Full script by EP"),
@@ -5566,6 +5606,11 @@ const UI = {
   st: { done:L("ถ่ายแล้ว","撮影済み","Shot"), not:L("ยังไม่ได้ถ่าย","未撮影","Not shot"), note:L("หมายเหตุ","メモ","Note"),
     prompt:L("หมายเหตุสำหรับ {s} (เช่น เหตุผลที่ไม่ได้ถ่าย / ย้ายไปวันไหน) — เว้นว่างเพื่อลบ","{s} のメモ（未撮影の理由・移動先の日など）— 空欄で削除","Note for {s} (e.g. why not shot / moved to which day) — leave empty to clear"),
     sumH:L("ซีนที่ยังไม่ได้ถ่าย (ค้าง)","未撮影シーン（持ち越し）","Scenes not shot yet (carried over)"), none:L("ไม่มีซีนค้าง 👍","未撮影シーンなし 👍","No scenes carried over 👍"),
+    total:L("ซีนทั้งหมด","全シーン","Total scenes"), shot:L("ถ่ายแล้ว","撮影済み","Shot"), left:L("เหลือ","残り","Remaining"), notL:L("ค้าง (ไม่ได้ถ่าย)","未撮影（持ち越し）","Not shot (carried)"),
+    nsShort:L("ค้าง","未撮影","Not shot"),
+    pend:L("ยังไม่ได้ติ๊ก","未記入","Not marked"), byDay:L("แยกตามวัน","日別","By shooting day"), byEp:L("แยกตามตอน","話数別","By episode"),
+    rowsNote:L("นับตามแถวซีนใน Breakdown (1 แถวอาจรวมหลายซีน เช่น SC.18,19,20) · ติ๊กสถานะได้ที่แท็บ ตารางถ่าย","ブレイクダウンのシーン行数で集計（1行に複数シーンを含む場合あり）· ステータスはスケジュールタブで記入","Counted by breakdown scene rows (one row may cover several scenes, e.g. SC.18,19,20) · mark status in the Schedule tab"),
+    open:L("เปิดตารางวันนี้","この日のスケジュール","Open schedule"),
     prog:L("ถ่ายแล้ว {a}/{b} ซีน","撮影済み {a}/{b}","{a}/{b} scenes shot"), by:L("อัปเดต","更新","updated") },
   f: { support:L("นักแสดงสมทบ / Extra","サポート・エキストラ","Supporting cast / Extras"), art:L("ศิลป์ & พร็อพ","美術・小道具","Art & props"), ward:L("เสื้อผ้า","衣装","Wardrobe"), remark:L("หมายเหตุ / Post","備考・ポスト","Notes / Post") },
   wrap: L("IT'S A WRAP! ขอบคุณทุกคน","撮了！お疲れさまでした","IT'S A WRAP! Thank you, everyone"),
@@ -5651,7 +5696,7 @@ let lang = qs.get("lang") || store.get("rsn-lang") || (NAVL.startsWith("ja") ? "
 if(!["th","ja","en"].includes(lang)) lang="th";
 const LOC=()=>lang==="ja"?"ja-JP":lang==="en"?"en-GB":"th-TH";
 let theme = store.get("rsn-theme") === "dark" ? "dark" : "light";
-let tab = Math.min(5,Math.max(0,parseInt(qs.get("tab"))||0)), who = "all";
+let tab = Math.min(6,Math.max(0,parseInt(qs.get("tab"))||0)), who = "all";
 const openSet = new Set();
 
 function t(o){ return o==null ? "" : (typeof o==="string" ? o : (o[lang] ?? o.th)); }
@@ -5753,12 +5798,12 @@ function render(){
   }
   document.getElementById("days").innerHTML=dh;
   const cur=document.querySelector('.day[aria-current="true"]'); if(cur && cur.scrollIntoView) cur.scrollIntoView({block:"nearest",inline:"center"});
-  document.getElementById("tabs").innerHTML=[0,1,2,4,5,3].map(i=>`<button type="button" role="tab" data-tab="${i}" aria-selected="${i===tab}">${t(UI.tabs[i])}</button>`).join("");
+  document.getElementById("tabs").innerHTML=[0,6,1,2,4,5,3].map(i=>`<button type="button" role="tab" data-tab="${i}" aria-selected="${i===tab}">${t(UI.tabs[i])}</button>`).join("");
 
   const d=DAYS.find(x=>x.day===dayNo);
   const main=document.getElementById("main");
   if(!d){ main.innerHTML=`<p class="empty">${t(UI.soon)}</p>`; return; }
-  main.innerHTML=head(d)+(tab===0?schedule(d):tab===1?shotsTab(d):tab===2?calls(d):tab===3?notes(d):tab===4?costumeTab(d):scriptTab(d));
+  main.innerHTML=tab===6?summaryTab():head(d)+(tab===0?schedule(d):tab===1?shotsTab(d):tab===2?calls(d):tab===3?notes(d):tab===4?costumeTab(d):scriptTab(d));
   tickTrains();
   document.getElementById("foot").textContent=t(UI.foot);
   document.getElementById("shareH").textContent=t(UI.shareH);
@@ -6456,7 +6501,7 @@ function deptRows(d){
 let SSTAT={};
 DAYS.forEach(d=>d.timeline.forEach(it=>{ if(it.type!=="loc") return; it.slots.forEach(sl=>sl.scenes.forEach(sc=>{ sc._day=d.day; sc._k="s"+d.day+"-"+hashKey(sc.id+"|"+(sc.place&&sc.place.th||"")+"|"+sl.start); sc._loc=it.name; sc._start=sl.start; })); }));
 function allScenes(){ const a=[]; DAYS.forEach(d=>d.timeline.forEach(it=>{ if(it.type==="loc") it.slots.forEach(sl=>sl.scenes.forEach(sc=>a.push(sc))); })); return a; }
-async function loadSceneStat(){ if(!SB) return; try{ const r=await sbFetch("/rest/v1/scenestat?select=id,status,note,updated_at"); const m={}; (await r.json()).forEach(x=>{ if(x.status||x.note) m[x.id]={status:x.status,note:x.note||"",at:x.updated_at}; }); if(JSON.stringify(m)!==JSON.stringify(SSTAT)){ SSTAT=m; if(tab===0) render(); } }catch(e){} }
+async function loadSceneStat(){ if(!SB) return; try{ const r=await sbFetch("/rest/v1/scenestat?select=id,status,note,updated_at"); const m={}; (await r.json()).forEach(x=>{ if(x.status||x.note) m[x.id]={status:x.status,note:x.note||"",at:x.updated_at}; }); if(JSON.stringify(m)!==JSON.stringify(SSTAT)){ SSTAT=m; if(tab===0||tab===6) render(); } }catch(e){} }
 async function saveSceneStat(sc,patch){
   const old=SSTAT[sc._k], cur=Object.assign({status:null,note:""},old,patch,{at:new Date().toISOString()});
   if(cur.status||cur.note) SSTAT[sc._k]=cur; else delete SSTAT[sc._k]; render();
@@ -6467,13 +6512,35 @@ function stBar(sc){
   if(!SB||!sc._k) return ""; const st=SSTAT[sc._k]||{}, U=UI.st;
   return `<div class="st-bar"><button type="button" class="st-b st-done" data-st="${sc._k}|done" aria-pressed="${st.status==="done"}">✓ ${t(U.done)}</button><button type="button" class="st-b st-not" data-st="${sc._k}|notshot" aria-pressed="${st.status==="notshot"}">✕ ${t(U.not)}</button><button type="button" class="st-b st-nt" data-st="${sc._k}|note">📝 ${t(U.note)}</button></div>${st.note?`<div class="st-note">📝 ${esc(st.note)}</div>`:""}`;
 }
+function summaryTab(){
+  const U=UI.st, all=allScenes(), S=x=>(SSTAT[x._k]||{}).status;
+  const cnt=a=>{ const done=a.filter(x=>S(x)==="done").length, ns=a.filter(x=>S(x)==="notshot").length; return {n:a.length,done,ns,pend:a.length-done-ns,left:a.length-done}; };
+  const bar=c=>`<div class="sum-bar" aria-hidden="true"><i class="b-done" style="width:${c.n?c.done/c.n*100:0}%"></i><i class="b-ns" style="width:${c.n?c.ns/c.n*100:0}%"></i></div>`;
+  const T=cnt(all), pct=T.n?Math.round(T.done/T.n*100):0;
+  let h=`<section class="sum-hero"><div class="sum-kpis">
+    <div><b>${T.n}</b><span>${t(U.total)}</span></div>
+    <div class="k-done"><b>${T.done}</b><span>${t(U.shot)}</span></div>
+    <div><b>${T.left}</b><span>${t(U.left)}</span></div>
+    <div class="k-ns"><b>${T.ns}</b><span>${t(U.notL)}</span></div></div>
+    <div class="sum-pct"><b>${pct}%</b>${bar(T)}</div>
+    <p class="sum-note">${t(U.rowsNote)}</p></section>`;
+  h+=`<section class="sec"><h2>📅 ${t(U.byDay)}</h2><div class="sum-days">${DAYS.map(d=>{ const c=cnt(all.filter(x=>x._day===d.day)); const isT=d.date===tokyoDate();
+    return `<button type="button" class="sum-day${isT?" today":""}${c.ns?" has-ns":""}" data-sumday="${d.day}"><div class="sd-h"><b>${t(UI.day)} ${d.day}</b><span>${esc(fmtShort(d.date))}</span>${c.n&&c.done===c.n?`<span class="sd-ok">✓</span>`:""}</div>
+      ${bar(c)}<div class="sd-n"><span class="c-done">✓ ${c.done}</span><span class="c-ns">✕ ${c.ns}</span><span class="c-p">· ${c.pend}</span><span class="c-t">/ ${c.n}</span></div></button>`; }).join("")}</div>
+    <div class="sum-leg"><span><i class="b-done"></i>${t(U.shot)}</span><span><i class="b-ns"></i>${t(U.notL)}</span><span><i></i>${t(U.pend)}</span></div></section>`;
+  const eps={}; all.forEach(x=>{ const m=/EP\.?\s*(\d+)/i.exec(x.id); const k=m?+m[1]:0; (eps[k]=eps[k]||[]).push(x); });
+  h+=`<section class="sec"><h2>🎞️ ${t(U.byEp)}</h2><table class="sum-ep"><thead><tr><th>EP</th><th>${t(U.total)}</th><th class="c-done">✓ ${t(U.shot)}</th><th>${t(U.left)}</th><th class="c-ns">✕ ${t(U.nsShort)}</th><th></th></tr></thead><tbody>${Object.keys(eps).map(Number).sort((a,b)=>a-b).map(k=>{ const c=cnt(eps[k]);
+    return `<tr><td><b>${k?"EP."+k:esc(eps[k].map(x=>x.id).join(", "))}</b></td><td>${c.n}</td><td class="c-done">${c.done}</td><td>${c.left}</td><td class="${c.ns?"c-ns":""}">${c.ns}</td><td class="ep-bar">${bar(c)}</td></tr>`; }).join("")}</tbody></table></section>`;
+  h+=notShotSec(null);
+  return h;
+}
 function notShotSec(d){
   if(!SB) return ""; const U=UI.st, all=allScenes();
-  const mine=all.filter(x=>x._day===d.day), done=mine.filter(x=>(SSTAT[x._k]||{}).status==="done").length;
+  const mine=d?all.filter(x=>x._day===d.day):[], done=mine.filter(x=>(SSTAT[x._k]||{}).status==="done").length;
   const ns=all.filter(x=>(SSTAT[x._k]||{}).status==="notshot");
   const rows=ns.map(x=>`<li><button type="button" class="ns-go" data-stgo="${x._day}|${x._k}"><b>${t(UI.day)} ${x._day}</b> <span class="sid">${esc(x.id)}</span> <span class="ns-pl">${esc(t(x.place))}</span></button>${SSTAT[x._k].note?`<div class="st-note">📝 ${esc(SSTAT[x._k].note)}</div>`:""}</li>`).join("");
-  return `<section class="ns-sec${ns.length?" has":""}"><div class="ns-top"><h3>🎬 ${t(U.sumH)} <b class="ns-n">${ns.length}</b></h3><span class="ns-prog">${t(U.prog).replace("{a}",done).replace("{b}",mine.length)}</span></div>
-    <div class="ns-progbar"><i style="width:${mine.length?Math.round(done/mine.length*100):0}%"></i></div>
+  return `<section class="ns-sec${ns.length?" has":""}"><div class="ns-top"><h3>🎬 ${t(U.sumH)} <b class="ns-n">${ns.length}</b></h3>${d?`<button type="button" class="ns-prog" data-tab="6">${t(U.prog).replace("{a}",done).replace("{b}",mine.length)} ›</button>`:""}</div>
+    ${d?`<div class="ns-progbar"><i style="width:${mine.length?Math.round(done/mine.length*100):0}%"></i></div>`:""}
     ${ns.length?`<ul class="ns-list">${rows}</ul>`:`<p class="ns-none">${t(U.none)}</p>`}</section>`;
 }
 let prepTeam="all", PDONE={};
@@ -6547,6 +6614,7 @@ document.addEventListener("click",async e=>{
   if(b.dataset.st){ const [k,a]=b.dataset.st.split("|"), sc=sceneByKey(k); if(!sc) return; const cur=SSTAT[k]||{};
     if(a==="note"||(a==="notshot"&&cur.status!=="notshot")){ const n=prompt(t(UI.st.prompt).replace("{s}",sc.id),cur.note||""); if(n===null) return; saveSceneStat(sc,Object.assign({note:n.trim().slice(0,500)},a==="note"?{}:{status:"notshot"})); }
     else saveSceneStat(sc,{status:cur.status===a?null:a}); return; }
+  if(b.dataset.sumday){ dayNo=+b.dataset.sumday; tab=0; who="all"; render(); window.scrollTo(0,0); return; }
   if(b.dataset.stgo){ const [dy,k]=b.dataset.stgo.split("|"); dayNo=+dy; tab=0; who="all"; render(); setTimeout(()=>{ const el=document.querySelector(`[data-sk="${CSS.escape(k)}"]`); if(el){ el.scrollIntoView({block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1600);} },30); return; }
   if(b.dataset.ack){ ackChanges(+b.dataset.ack); return; }
   if(b.dataset.print){ printDay(); return; }
