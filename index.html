@@ -579,6 +579,33 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .ann a{font-weight:600;white-space:nowrap}
 @media (min-width:1000px){ .ann ul{grid-template-columns:1fr 1fr;gap:4px 18px} }
 @media print{ .ann{border-color:#999;background:#fff} }
+/* train timetable */
+.train{border:1px solid var(--line);border-radius:12px;margin:8px 0 10px;background:var(--surface)}
+.train summary{cursor:pointer;padding:9px 12px;font-weight:700;font-size:14px}
+.train-scroll{overflow-x:auto;padding:0 8px}
+.train table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums;min-width:440px}
+.train th,.train td{padding:6px 7px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.train th{font-size:12px;font-weight:700}
+.train th small{display:block;font-weight:500;color:var(--ink-3);font-size:11px}
+.train td small{color:var(--ink-3)}
+.train .go{background:#FFE4D6}
+.train .back{background:#DBEAFE}
+[data-theme="dark"] .train .go{background:#3B2418}
+[data-theme="dark"] .train .back{background:#172A45}
+.train tr.bad td{opacity:.5}
+.train tr.bad td:first-child{text-decoration:line-through}
+.train tr.fit td:first-child{box-shadow:inset 3px 0 0 #16A34A}
+.train .seat{font-weight:700}
+.train .fit-tag{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;background:#16A34A;border-radius:6px;padding:0 5px;margin-left:2px}
+.train-leg{list-style:none;margin:8px 12px 4px;padding:0;display:grid;gap:2px;font-size:12.5px}
+.train-leg li.bad{color:#B91C1C;font-weight:600}
+[data-theme="dark"] .train-leg li.bad{color:#F87171}
+.train-note{margin:4px 12px 10px;font-size:12.5px;color:var(--ink-2,var(--ink-3));line-height:1.6}
+.train .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 4px 0 0}
+.train .sw.back{margin-left:10px}
+@media (min-width:1000px){ .train-leg{grid-template-columns:1fr 1fr} }
+@media print{ .train .go,.train .back{background:none} }
+@media (max-width:520px){ .train table{font-size:12.5px;min-width:0} .train th,.train td{padding:5px 4px} .train td small{display:block} .train .fit-tag{display:block;width:max-content;margin:2px 0 0} .train td.back{white-space:normal;min-width:48px} .train th{white-space:normal} }
 </style>
 </head>
 <body>
@@ -1063,6 +1090,7 @@ DAYS.push({
   wardNote: L("Extra x20","エキストラ20名分","Extras x20"),
   checks: [
     L("Call sheet 28 ก.ย. ระบุเวลาทำงาน 06:30–21:00 แต่นักแสดงหลักยัง EST. WRAP 22:00 — ยืนยันเวลาเลิกของนักแสดง","9/28版コールシートは稼働06:30〜21:00だが、メインキャストの終了予定は22:00のまま — キャスト終了時間を要確認","The 28 Sep call sheet says working hours 06:30–21:00, but main cast EST. WRAP is still 22:00 — confirm cast wrap time"),
+    L("คิวบนรถไฟ 15:30–15:50 ตรงกับขบวน 5014 (ออก 15:27 ถึง Oshio 15:38) เท่านั้น · 5632 (15:42) เป็นที่นั่งเดี่ยว ไม่เหมาะถ่าย · ขบวนถัดไปที่ใช้ได้คือ 5016 (15:57) ซึ่งเลยคิว — ถ้าต้องถ่าย 2 ซีน (EP.7 SC.14 + EP.8 SC.16) ต้องขยายคิวถึง ~16:10 หรือถ่ายซีนละขบวน","車内撮影枠15:30〜15:50に合うのは5014（15:27発・大塩15:38着）のみ · 5632（15:42）は1人掛けで撮影不向き · 次に使えるのは5016（15:57発）で枠外 — 2シーン（EP.7 SC.14＋EP.8 SC.16）撮るなら〜16:10まで延長か1本1シーン","On-train slot 15:30–15:50 fits only train 5014 (dep. 15:27, Oshio 15:38) · 5632 (15:42) has single seats, not suitable · next usable is 5016 (15:57), after the slot — for both scenes (EP.7 SC.14 + EP.8 SC.16) extend to ~16:10 or shoot one scene per train"),
     L("EP.7 SC.12 มี 3 แถวในวันนี้ (ถนนวิว Himeji 09:25, ถนนข้ามถนน 13:40, ในสถานี Sanyo 15:10) รายละเอียดต่างกัน — น่าจะต้องแยกเลขซีน","EP.7 SC.12が本日3行（姫路の道路09:25、道路横断13:40、山陽駅構内15:10）で内容が異なる — シーン番号の整理が必要か","EP.7 SC.12 appears three times today (Himeji road 09:25, street crossing 13:40, inside Sanyo station 15:10) with different content — scene numbers probably need splitting"),
     L("JR Himeji Station เป็นซีนกลางวัน (D) ทั้ง 3 ซีน แต่บล็อกขยายเป็น 16:00–21:00 และพระอาทิตย์ตก 17:47 — ซีนหลังพระอาทิตย์ตกจะมืด","JR姫路駅の3シーンはすべて昼（D）だが、枠が16:00〜21:00に延長され日没は17:47 — 日没後は暗くなる","All three JR Himeji Station scenes are DAY (D), but the block now runs 16:00–21:00 and sunset is 17:47 — anything after sunset will be dark"),
     L("Daily Script SD3 มี EP.5 SC.12 และ SC.16 แต่ตารางวันนี้ไม่มี (Breakdown ใส่ไว้เป็น PLAN B วันที่ 2)","デイリー台本SD3にEP.5 SC.12・SC.16があるが本日の予定にない（ブレイクダウンでは2日目のPLAN B）","Daily Script SD3 includes EP.5 SC.12 and SC.16, but today's schedule doesn't (Breakdown lists them as Plan B on Day 2)"),
@@ -1910,6 +1938,30 @@ const ANNOUNCE = [
     { icon:"🅿️", t:L("รถทุกคันส่งทีมงานและอุปกรณ์เรียบร้อยแล้ว นำรถกลับมาจอดที่โรงแรม ยกเว้นรถอุปกรณ์ (VAN 3) จะแจ้งที่จอดให้พรุ่งนี้เช้า","全車両はスタッフと機材を降ろした後ホテルに戻って駐車。機材車（VAN 3）の駐車場所は明朝連絡","After dropping off crew and equipment, all vans return to park at the hotel — except the equipment van (VAN 3); its parking will be announced tomorrow morning") },
     { icon:"☔", t:L("สภาพอากาศมีฝน ขอให้ทีมงานทุกคนพกเสื้อกันฝนมาทำงาน","雨予報のため、全スタッフはレインウェアを持参してください","Rain expected — everyone please bring a raincoat"), warn:true }
   ]}
+];
+
+/* Train timetables for on-train scenes (from production, Sanyo Electric Railway, 30 Sep 2026).
+   Shown under the matching breakdown location (loc = location name in Thai). Times: Sanyo Himeji arr/dep → Oshio arr,
+   return by local (Oshio dep → Sanyo Himeji arr) or limited express (Oshio dep → Himeji arr). */
+const TRAINS = [
+  { day:3, loc:"Sanyo Train Station", line:L("รถไฟ Sanyo: ฮิเมจิ ⇄ Oshio (大塩)","山陽電車：山陽姫路 ⇄ 大塩","Sanyo line: Himeji ⇄ Oshio (大塩)"),
+    rows:[
+      { no:"5020", seat:"◎", hA:"13:07", hD:"13:12", oA:"13:23", oD:"13:28", hR:"13:46", xD:"13:26", xA:"13:37" },
+      { no:"5014", seat:"○", hA:"15:22", hD:"15:27", oA:"15:38", oD:"15:43", hR:"16:01", xD:"15:41", xA:"15:52" },
+      { no:"5632", seat:"△", hA:"15:37", hD:"15:42", oA:"15:53", oD:"15:58", hR:"16:16", xD:"15:56", xA:"16:07" },
+      { no:"5016", seat:"○", hA:"15:52", hD:"15:57", oA:"16:08", oD:"16:13", hR:"16:31", xD:"16:11", xA:"16:22" },
+      { no:"5012", seat:"☆", hA:"16:07", hD:"16:12", oA:"16:23", oD:"16:28", hR:"16:46", xD:"16:26", xA:"16:37" },
+      { no:"5010", seat:"☆", hA:"16:22", hD:"16:28", oA:"16:39", oD:"16:43", hR:"17:01", xD:"16:41", xA:"16:52" }
+    ],
+    seats:{
+      "◎":L("เบาะกลับทิศได้ทุกที่นั่ง","全席転換可能","All seats reversible"),
+      "○":L("เบาะกลับทิศได้เกือบทั้งหมด (2 ที่นั่งข้างประตูกลางกลับไม่ได้)","ほぼ転換可能（中扉横の2席は不可）","Mostly reversible (2 seats beside the middle door are not)"),
+      "☆":L("เบาะกลับทิศไม่ได้","転換不可","Seats not reversible"),
+      "△":L("ที่นั่งเดี่ยวฝั่งภูเขา — ไม่เหมาะถ่ายทำ","山側が1人掛け — 撮影に不向き","Single seats on the mountain side — not suitable for filming")
+    },
+    note:L("ช่วงถ่ายทำ = บนรถ ฮิเมจิ → Oshio (~11 นาที) · ขากลับ Oshio → ฮิเมจิ (รถธรรมดา ~18 นาที / ด่วนพิเศษ ~11 นาที) · 1 รอบไป-กลับ ≈ 35–40 นาที",
+           "撮影 = 山陽姫路→大塩の車内（約11分）· 戻り 大塩→姫路（普通 約18分／特急 約11分）· 1往復 約35〜40分",
+           "Shooting = on board Himeji → Oshio (~11 min) · return Oshio → Himeji (local ~18 min / limited express ~11 min) · one round trip ≈ 35–40 min") }
 ];
 
 /* Shooting Board (RSN_STB Working file.key) — blockshot frames per scene.
@@ -5430,6 +5482,10 @@ const UI = {
   nowBtn: L("ตอนนี้","現在","Now"), nowNext: L("ถัดไป","次","Next"), printBtn: L("พิมพ์ / PDF","印刷・PDF","Print / PDF"),
   printed: L("พิมพ์จาก RESONANCE Breakdown","RESONANCE ブレイクダウンより印刷","Printed from RESONANCE Breakdown"),
   prepDone: L("เสร็จ {d}/{t}","完了 {d}/{t}","Done {d}/{t}"),
+  train: { h:L("ตารางรถไฟ","電車の時刻表","Train timetable"), no:L("ขบวน / เบาะ","列車番号 / 座席","Train / seats"),
+    go:L("ออกฮิเมจิ","山陽姫路 発","Dep. Himeji"), goS:L("เข้าชานชาลา → ออก","着 → 発","arr → dep"), arr:L("ถึง","着","Arr."), him:L("ฮิเมจิ","姫路","Himeji"),
+    local:L("กลับ ธรรมดา","戻り 普通","Back local"), exp:L("กลับ ด่วน","戻り 特急","Back express"),
+    fit:L("ตรงคิวถ่าย","撮影枠内","in shoot slot"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
   annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
   sos: L("เบอร์ฉุกเฉิน","緊急連絡先","Emergency numbers"), sosLead: L("แตะเบอร์เพื่อโทรได้ทันที","番号をタップで発信","Tap a number to call"), sosTip: L("บอกที่อยู่ได้จากปุ่ม Google Maps ของโลเคชั่น","住所はロケ地のGoogleマップボタンで確認","Get the address from the location's Google Maps button"),
   prepH: L("เตรียมตัว / ยังขาด","準備・不足情報","Prep / still missing"), prepLead: L("รวบรวมจาก Breakdown, พยากรณ์, บท, บอร์ด และคอสตูมบุ๊ก — กรองตามทีมได้","ブレイクダウン・天気・台本・ボード・衣装ブックから集約 — チーム別に絞り込み可","Compiled from the breakdown, forecast, script, board and costume book — filter by team"),
@@ -5682,6 +5738,19 @@ function head(d){
   </section>`;
 }
 
+function trainBlock(d,item){
+  if(typeof TRAINS==="undefined") return "";
+  const T=TRAINS.find(x=>x.day===d.day&&x.loc===item.name.en); if(!T) return "";
+  const slots=item.slots.filter(s=>s.scenes.some(sc=>/train/i.test((sc.place&&sc.place.en)||"")));
+  const fit=r=>r.seat!=="△"&&slots.some(s=>mins(r.hD)<mins(s.end)&&mins(r.oA)>mins(s.start));
+  const U=UI.train;
+  return `<details class="train" open><summary>🚃 ${esc(t(U.h))} — ${esc(t(T.line))}</summary>
+    <div class="train-scroll"><table><thead><tr><th>${t(U.no)}</th><th class="go">${t(U.go)}<small>${t(U.goS)}</small></th><th class="go">${t(U.arr)}<small>Oshio</small></th><th class="back">${t(U.local)}<small>→ ${t(U.him)}</small></th><th class="back">${t(U.exp)}<small>→ ${t(U.him)}</small></th></tr></thead><tbody>
+    ${T.rows.map(r=>`<tr class="${r.seat==="△"?"bad":""}${fit(r)?" fit":""}"><td><b>${r.no}</b> <span class="seat">${r.seat}</span>${fit(r)?` <span class="fit-tag">${t(U.fit)}</span>`:""}</td><td class="go"><small>${r.hA} →</small> <b>${r.hD}</b></td><td class="go">${r.oA}</td><td class="back">${r.oD} → ${r.hR}</td><td class="back">${r.xD} → ${r.xA}</td></tr>`).join("")}
+    </tbody></table></div>
+    <ul class="train-leg">${Object.entries(T.seats).map(([k,v])=>`<li class="${k==="△"?"bad":""}"><span class="seat">${k}</span> ${esc(t(v))}</li>`).join("")}</ul>
+    <p class="train-note"><span class="sw go"></span>${t(U.goL)} <span class="sw back"></span>${t(U.backL)}<br>${esc(t(T.note))}</p></details>`;
+}
 function annBlock(d){
   if(typeof ANNOUNCE==="undefined") return "";
   const a=ANNOUNCE.filter(x=>x.day===d.day); if(!a.length) return "";
@@ -6038,6 +6107,7 @@ function schedule(d){
       <div class="bs-map">${mapCtl(item.name,item.map)}</div>
       ${parkCtl(item.name)}
       ${item.note?`<div class="loc-meta">${esc(t(item.note))}</div>`:""}
+      ${trainBlock(d,item)}
       ${shotsStrip(d,item.name)}
       ${sh}</section>`;
   });
