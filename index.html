@@ -688,6 +688,8 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 @media (max-width:420px){ .sum-kpis b{font-size:22px} .sum-kpis span{font-size:11px} .sum-ep .ep-bar{display:none} }
 .sum-leg i.b-done{background:#16A34A}
 .sum-leg i.b-ns{background:#DC2626}
+.ann .ann-link{display:inline-block;margin-left:4px;padding:1px 9px;border-radius:999px;background:#1C1917;color:#FEF9C3;text-decoration:none;font-size:12.5px}
+[data-theme="dark"] .ann .ann-link{background:#FBBF24;color:#1C1917}
 </style>
 </head>
 <body>
@@ -2017,7 +2019,11 @@ const ANNOUNCE = [
     { icon:"🎭", t:L("เอิงเอย (ปาล์ม) — แต่งหน้าทำผม 06:40–07:20 · ออกจากโรงแรม 08:00 (VAN 6 พี่วี)","Oeng-Oey（Palm）— ヘアメイク 6:40〜7:20 · ホテル出発 8:00（VAN 6 Vee）","Oeng-Oey (Palm) — hair & makeup 06:40–07:20 · leave hotel 08:00 (VAN 6, Vee)") },
     { icon:"🎭", t:L("โมริซัง (Taki So) — แต่งหน้าทำผม 07:20–07:40 · ออกจากโรงแรม 08:00 (VAN 6 พี่วี)","Mori-san（Taki So）— ヘアメイク 7:20〜7:40 · ホテル出発 8:00（VAN 6 Vee）","Mori-san (Taki So) — hair & makeup 07:20–07:40 · leave hotel 08:00 (VAN 6, Vee)") },
     { icon:"🎭", t:L("เฟม (เฟรนด์) — แต่งหน้าทำผม 08:10–08:50 · ออกจากโรงแรม 09:30 (VAN 4 พี่จิมมี่)","Fame（Friend）— ヘアメイク 8:10〜8:50 · ホテル出発 9:30（VAN 4 Jimmy）","Fame (Friend) — hair & makeup 08:10–08:50 · leave hotel 09:30 (VAN 4, Jimmy)") },
-    { icon:"🎭", t:L("มินามิ (Miori) — แต่งหน้าทำผม 08:50–09:20 · ออกจากโรงแรม 09:30 (VAN 4 พี่จิมมี่)","Minami（Miori）— ヘアメイク 8:50〜9:20 · ホテル出発 9:30（VAN 4 Jimmy）","Minami (Miori) — hair & makeup 08:50–09:20 · leave hotel 09:30 (VAN 4, Jimmy)") }
+    { icon:"🎭", t:L("มินามิ (Miori) — แต่งหน้าทำผม 08:50–09:20 · ออกจากโรงแรม 09:30 (VAN 4 พี่จิมมี่)","Minami（Miori）— ヘアメイク 8:50〜9:20 · ホテル出発 9:30（VAN 4 Jimmy）","Minami (Miori) — hair & makeup 08:50–09:20 · leave hotel 09:30 (VAN 4, Jimmy)") },
+    { icon:"🎵", t:L("เพลงที่ใช้ถ่ายในซีน ⬇︎","撮影で使う曲 ⬇︎","Songs used in the scenes ⬇︎"), warn:true },
+    { icon:"1️⃣", t:L("Our Little Thing — เอิงเอยร้อง, บอมซังเล่นกีต้าร์ (เล่นจริง)","Our Little Thing — Oeng-Oey 歌、Bom-san ギター（生演奏）","Our Little Thing — Oeng-Oey sings, Bom-san plays guitar (live)"), link:"https://f.io/fM0NZfEF" },
+    { icon:"2️⃣", t:L("You're My Resonance — เอิงเอยร้อง, เฟมเล่นกีต้าร์โปร่ง (เล่นจริง)","You're My Resonance — Oeng-Oey 歌、Fame アコースティックギター（生演奏）","You're My Resonance — Oeng-Oey sings, Fame plays acoustic guitar (live)"), link:"https://f.io/TihOntJa" },
+    { icon:"3️⃣", t:L("ติดเกาะ — เอิงเอยเล่นกีต้าร์ + ร้อง (เปิดเพลงซิงก์)","Tid Koh（ติดเกาะ）— Oeng-Oey ギター＋歌（音源に合わせる／リップシンク）","Tid Koh (ติดเกาะ) — Oeng-Oey plays guitar + sings (playback, sync to track)"), link:"https://f.io/nvjn3ybo" }
   ]},
   { day:2, posted:"2026-09-29", items:[
     { icon:"🍳", t:L("อาหารเช้า 06:30","朝食 6:30","Breakfast 06:30") },
@@ -5581,6 +5587,7 @@ const UI = {
     atPf:L("จอดอยู่ที่ชานชาลา · ออกในอีก {t}","停車中 · あと{t}で発車","At the platform · departs in {t}"),
     running:L("กำลังวิ่ง (ถ่ายทำ) · ถึง Oshio อีก {t}","走行中（撮影）· 大塩まであと{t}","Running (shooting) · Oshio in {t}"),
     back:L("ขากลับ · ถึงฮิเมจิอีก {t}","戻り · 姫路まであと{t}","Returning · Himeji in {t}"), gone:L("ผ่านไปแล้ว","通過済み","Done"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
+  listen: L("ฟังเพลง","曲を聴く","Listen"),
   annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
   sos: L("เบอร์ฉุกเฉิน","緊急連絡先","Emergency numbers"), sosLead: L("แตะเบอร์เพื่อโทรได้ทันที","番号をタップで発信","Tap a number to call"), sosTip: L("บอกที่อยู่ได้จากปุ่ม Google Maps ของโลเคชั่น","住所はロケ地のGoogleマップボタンで確認","Get the address from the location's Google Maps button"),
   prepH: L("เตรียมตัว / ยังขาด","準備・不足情報","Prep / still missing"), prepLead: L("รวบรวมจาก Breakdown, พยากรณ์, บท, บอร์ด และคอสตูมบุ๊ก — กรองตามทีมได้","ブレイクダウン・天気・台本・ボード・衣装ブックから集約 — チーム別に絞り込み可","Compiled from the breakdown, forecast, script, board and costume book — filter by team"),
@@ -5885,7 +5892,7 @@ function tickTrains(){
 function annBlock(d){
   if(typeof ANNOUNCE==="undefined") return "";
   const a=ANNOUNCE.filter(x=>x.day===d.day); if(!a.length) return "";
-  return a.map(x=>`<section class="ann"><h3>📣 ${t(UI.annH)} <small>${esc(fmtDate(x.posted,false))}</small></h3><ul>${x.items.map(it=>`<li class="${it.warn?"warn":""}"><span>${it.icon||"•"}</span><div>${esc(t(it.t))}${it.map?` <a href="${esc(it.map)}" target="_blank" rel="noopener">📍 Google Maps</a>`:""}</div></li>`).join("")}</ul></section>`).join("");
+  return a.map(x=>`<section class="ann"><h3>📣 ${t(UI.annH)} <small>${esc(fmtDate(x.posted,false))}</small></h3><ul>${x.items.map(it=>`<li class="${it.warn?"warn":""}"><span>${it.icon||"•"}</span><div>${esc(t(it.t))}${it.map?` <a href="${esc(it.map)}" target="_blank" rel="noopener">📍 Google Maps</a>`:""}${it.link?` <a class="ann-link" href="${esc(it.link)}" target="_blank" rel="noopener">▶ ${t(UI.listen)}</a>`:""}</div></li>`).join("")}</ul></section>`).join("");
 }
 function wxBlock(d,w){
   const lbl=["00","06","12","18"];
