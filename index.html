@@ -721,6 +721,10 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .ser-out h4 small{color:var(--ink-3);font-weight:600}
 .ser-out ul{list-style:none;margin:0 0 8px;padding:0}
 @media (min-width:1000px){ .ser-out ul{display:grid;grid-template-columns:1fr 1fr;gap:0 18px} }
+.ser-out.jp{border-color:#FCA5A5}
+.ser-out.jp summary{color:#B91C1C}
+[data-theme="dark"] .ser-out.jp summary{color:#F87171}
+.sum-ep{min-width:380px}
 </style>
 </head>
 <body>
@@ -2095,6 +2099,25 @@ const TRAINS = [
            "撮影 = 山陽姫路→大塩の車内（約11分）· 戻り 大塩→姫路（普通 約18分／特急 約11分）· 1往復 約35〜40分",
            "Shooting = on board Himeji → Oshio (~11 min) · return Oshio → Himeji (local ~18 min / limited express ~11 min) · one round trip ≈ 35–40 min") }
 ];
+
+/* Script scene number -> breakdown scene numbers (or other script scenes) that cover it, where the final script (22.09.26)
+   and the call sheets number a scene differently, or where a flash-forward / flashback reuses another scene's footage.
+   Matched by reading descriptions; used by the Summary tab (seriesSec). Flashbacks whose heading names "EP x SC y" resolve automatically. */
+const SCENE_ALIAS = {
+  "EP.1 SC.1":["EP.7 SC.12"],              // flash-forward of the Sanyo sequence (EP1 heading: "EP7 Sc.12")
+  "EP.1 SC.2":["EP.7 SC.10","EP.7 SC.11"],
+  "EP.1 SC.3":["EP.7 SC.11"],
+  "EP.1 SC.4":["EP.7 SC.14"],
+  "EP.7 SC.13":["EP.7 SC.14"],             // on the train
+  "EP.1 SC.23":["EP.1 SC.23A","EP.1 SC.23B"],
+  "EP.2 SC.5A":["EP.2 SC.4"],              // call sheet "EP.2 SC.4" = Fame at her desk listening to old song files
+  "EP.2 SC.13B":["EP.2 SC.13C"],           // dining room, lights left on
+  "EP.2 SC.14":["EP.2 SC.13D"],
+  "EP.6 SC.13":["EP.6 SC.13A"],
+  "EP.5 SC.8":["EP.5 SC.4"]                // flashback of EP.5 SC.4 (reference is in the body, not the heading)
+};
+/* Thai-heading keywords that mean the scene is set in Japan (used to split unscheduled scenes into "Japan, missing from the breakdown" vs "shot elsewhere"). */
+const JAPAN_RE = /ญี่ปุ่น|ฮิเมจิ|Sanyo|รถไฟ|กระเช้า|ซุปเปอร์|ซ่อมกีต้าร์|หินหัวเต่า|อิเอชิมะ|อิเมชิมะ|nuages|โมริ|hamamoto|JR|piole|แมนชั่นของเฟม/i;
 
 /* Shooting Board (RSN_STB Working file.key) — blockshot frames per scene.
    Each group: slide, scenes (breakdown ids), loc (fallback Thai location name when no scene), desc, frames [file…], notes.
@@ -5665,10 +5688,10 @@ const UI = {
     rowsNote:L("นับตามแถวซีนใน Breakdown (1 แถวอาจรวมหลายซีน เช่น SC.18,19,20) · ติ๊กสถานะได้ที่แท็บ ตารางถ่าย","ブレイクダウンのシーン行数で集計（1行に複数シーンを含む場合あり）· ステータスはスケジュールタブで記入","Counted by breakdown scene rows (one row may cover several scenes, e.g. SC.18,19,20) · mark status in the Schedule tab"),
     open:L("เปิดตารางวันนี้","この日のスケジュール","Open schedule"),
     serH:L("ทั้งซีรีส์ตามบท (EP.1–10)","シリーズ全体・台本ベース（EP.1〜10）","Whole series by script (EP.1–10)"), serTotal:L("ซีนในบททั้งหมด","台本の全シーン","Script scenes"), serIn:L("อยู่ในคิวญี่ปุ่น","日本ロケ香盤内","On Japan schedule"), serLeft:L("เหลือทั้งซีรีส์","シリーズ残り","Left in series"),
-    serScr:L("บท","台本","Script"), serQ:L("ในคิว","香盤内","Sched."), serOut:L("นอกคิว","香盤外","Not sched."), serSum:L("รวม","合計","Total"),
-    serNote:L("นับตามเลขซีนในบทไฟนอล 22.09.26 (EP.9–10 = Draft 4) · 'นอกคิว' = ซีนที่ไม่อยู่ในคิวถ่ายญี่ปุ่น 8 วัน · ซีนนับว่าถ่ายแล้วเมื่อทุกแถวของซีนนั้นถูกติ๊ก","台本決定稿22.09.26のシーン番号で集計（EP.9〜10はDraft 4）·「香盤外」＝日本ロケ8日間に含まれないシーン · 該当行がすべてチェック済みで撮影済み扱い","Counted by scene number in the final script 22.09.26 (EP.9–10 = Draft 4) · 'Not sched.' = scenes outside the 8-day Japan shoot · a scene counts as shot when every row for it is ticked"),
+    serScr:L("บท","台本","Script"), serQ:L("ในคิว","香盤内","Sched."), serJp:L("🇯🇵 ไม่มีคิว","🇯🇵 香盤なし","🇯🇵 no slot"), serJpH:L("⚠️ ซีนญี่ปุ่นที่ยังไม่มีในเบรกดาวน์ (ต้องตรวจ)","⚠️ 日本ロケのシーンで香盤にないもの（要確認）","⚠️ Japan scenes missing from the breakdown (check)"), serOut:L("ถ่ายที่อื่น","日本以外","Elsewhere"), serSum:L("รวม","合計","Total"),
+    serNote:L("นับตามเลขซีนในบทไฟนอล 22.09.26 (EP.9–10 = Draft 4) แล้วจับคู่กับเบรกดาวน์ · ซีน Flashback / Flash forward นับตามซีนต้นทาง · เลขซีนที่บทกับ Call Sheet ไม่ตรงกันจับคู่จากคำบรรยาย · นับว่าถ่ายแล้วเมื่อทุกแถวของซีนนั้นถูกติ๊ก","台本決定稿22.09.26（EP.9〜10はDraft 4）のシーン番号を香盤と照合 · 回想／フラッシュフォワードは元シーンで判定 · 台本と香盤で番号が違うものは内容で照合 · 該当行がすべてチェック済みで撮影済み扱い","Counted by scene number in the final script 22.09.26 (EP.9–10 = Draft 4) and matched to the breakdown · flashbacks / flash-forwards follow their source scene · scenes numbered differently in script and call sheet are matched by description · a scene counts as shot when every row for it is ticked"),
     serExtra:L("มีในเบรกดาวน์แต่ไม่มีในบท","香盤にあるが台本にないシーン","In the breakdown but not in the script"),
-    serOutH:L("ซีนที่ไม่อยู่ในคิวถ่ายญี่ปุ่น","日本ロケ香盤外のシーン","Scenes not on the Japan schedule"),
+    serOutH:L("ซีนที่ไม่ได้ถ่ายที่ญี่ปุ่น (ไทย / อื่นๆ)","日本以外で撮影するシーン（タイほか）","Scenes shot outside Japan (Thailand / other)"),
     prog:L("ถ่ายแล้ว {a}/{b} ซีน","撮影済み {a}/{b}","{a}/{b} scenes shot"), by:L("อัปเดต","更新","updated") },
   f: { support:L("นักแสดงสมทบ / Extra","サポート・エキストラ","Supporting cast / Extras"), art:L("ศิลป์ & พร็อพ","美術・小道具","Art & props"), ward:L("เสื้อผ้า","衣装","Wardrobe"), remark:L("หมายเหตุ / Post","備考・ポスト","Notes / Post") },
   wrap: L("IT'S A WRAP! ขอบคุณทุกคน","撮了！お疲れさまでした","IT'S A WRAP! Thank you, everyone"),
@@ -6368,7 +6391,8 @@ const CB = (typeof COSTUME!=="undefined") ? COSTUME : {looks:{},scenes:{}};
 let cbView="scene", cbWho="all";
 function sceneKeys(id){
   const m=/^EP\.?\s*(\d+)\s*SC\.?\s*(.+)$/i.exec(String(id).trim()); if(!m) return [id];
-  return m[2].split(/[,\/]/).map(x=>`EP.${m[1]} SC.${x.trim().toUpperCase()}`);
+  let last="";
+  return m[2].split(/[,\/]/).map(x=>{ x=x.trim().toUpperCase(); if(/^[A-Z]$/.test(x)) x=last+x; else last=(x.match(/^\d+/)||[""])[0]; return `EP.${m[1]} SC.${x}`; });
 }
 const SCENE_DAY=(()=>{ const m={}; DAYS.forEach(d=>d.timeline.forEach(it=>(it.slots||[]).forEach(s=>s.scenes.forEach(sc=>sceneKeys(sc.id).forEach(k=>{ (m[k]=m[k]||[]); if(!m[k].some(x=>x.day===d.day)) m[k].push({day:d.day,id:sc.id}); }))))); return m; })();
 function cbPlaceKey(day,id){ const d=DAYS.find(x=>x.day===day); let p=""; d&&d.timeline.forEach(it=>(it.slots||[]).forEach(s=>s.scenes.forEach(sc=>{ if(!p&&sc.id===id) p=t(sc.place); }))); return p; }
@@ -6605,26 +6629,34 @@ function seriesSec(all,S){
   if(typeof SCRIPT_SCENES==="undefined") return "";
   const U=UI.st, cov={};
   all.forEach(x=>sceneKeys(x.id).forEach(k=>(cov[k]=cov[k]||[]).push(x)));
-  const stOf=k=>{ const r=cov[k]; if(!r) return "out"; if(r.some(x=>S(x)==="notshot")) return "ns"; return r.every(x=>S(x)==="done")?"done":"pend"; };
-  const inScript=new Set(), rows=[], tot={n:0,inq:0,done:0,ns:0,out:0}, outL=[];
+  const AL=typeof SCENE_ALIAS!=="undefined"?SCENE_ALIAS:{}, heads={};
+  Object.values(SCRIPT_SCENES).forEach(a=>a.forEach(sc=>heads[sc[0]]=sc[1]));
+  const refOf=id=>{ const h=heads[id]||""; if(!/FLASH/i.test(h)) return null; const m=/EP\.?\s*(\d+)\s*SC\.?\s*(\d+[A-Z]?)/i.exec(h.replace(/^\(Sc\.\d+/i,"(")); return m?`EP.${m[1]} SC.${m[2].toUpperCase()}`:null; };
+  const rowsOf=(id,depth)=>{ let r=(cov[id]||[]).slice(); if(depth>3) return r; const al=(AL[id]||[]).concat(r.length?[]:(refOf(id)?[refOf(id)]:[])); al.forEach(k=>{ if(k!==id) r=r.concat(rowsOf(k,(depth||0)+1)); }); return [...new Set(r)]; };
+  const stOf=k=>{ const r=rowsOf(k,0); if(!r.length) return "out"; if(r.some(x=>S(x)==="notshot")) return "ns"; return r.every(x=>S(x)==="done")?"done":"pend"; };
+  const inScript=new Set(), rows=[], tot={n:0,inq:0,done:0,ns:0,jp:0,out:0}, outL=[], jpL=[];
+  const JRE=typeof JAPAN_RE!=="undefined"?JAPAN_RE:/ญี่ปุ่น/;
   Object.keys(SCRIPT_SCENES).map(Number).sort((a,b)=>a-b).forEach(ep=>{
-    const c={ep,n:0,inq:0,done:0,ns:0,out:0};
-    SCRIPT_SCENES[ep].forEach(sc=>{ inScript.add(sc[0]); c.n++; const st=stOf(sc[0]); if(st==="out"){ c.out++; outL.push([ep,sc]); } else { c.inq++; if(st==="done") c.done++; if(st==="ns") c.ns++; } });
+    const c={ep,n:0,inq:0,done:0,ns:0,jp:0,out:0};
+    SCRIPT_SCENES[ep].forEach(sc=>{ inScript.add(sc[0]); c.n++; const st=stOf(sc[0]);
+      if(st==="out"){ if(JRE.test(sc[1])){ c.jp++; jpL.push([ep,sc]); } else { c.out++; outL.push([ep,sc]); } }
+      else { c.inq++; if(st==="done") c.done++; if(st==="ns") c.ns++; } });
     rows.push(c); Object.keys(tot).forEach(k=>tot[k]+=c[k]);
   });
-  const extra=Object.keys(cov).filter(k=>!inScript.has(k));
+  const aliased=new Set([].concat(...Object.values(AL)));
+  const extra=Object.keys(cov).filter(k=>!inScript.has(k)&&!aliased.has(k));
   const bar=c=>`<div class="sum-bar" aria-hidden="true"><i class="b-done" style="width:${c.n?c.done/c.n*100:0}%"></i><i class="b-ns" style="width:${c.n?c.ns/c.n*100:0}%"></i><i class="b-pend" style="width:${c.n?(c.inq-c.done-c.ns)/c.n*100:0}%"></i></div>`;
-  const tr=(c,lab,cls)=>`<tr class="${cls||""}"><td><b>${lab}</b></td><td>${c.n}</td><td>${c.inq}</td><td class="c-done">${c.done}</td><td>${c.inq-c.done}</td><td class="${c.ns?"c-ns":""}">${c.ns}</td><td class="${c.out?"c-out":""}">${c.out}</td><td class="ep-bar">${bar(c)}</td></tr>`;
+  const tr=(c,lab,cls)=>`<tr class="${cls||""}"><td><b>${lab}</b></td><td>${c.n}</td><td>${c.inq}</td><td class="c-done">${c.done}</td><td>${c.inq-c.done}</td><td class="${c.ns?"c-ns":""}">${c.ns}</td><td class="${c.jp?"c-ns":""}">${c.jp}</td><td class="${c.out?"c-out":""}">${c.out}</td><td class="ep-bar">${bar(c)}</td></tr>`;
   const head=sc=>lang==="ja"?(sc[2]||sc[1]):lang==="en"?(sc[3]||sc[1]):sc[1];
   let h=`<section class="sec"><h2>🎞️ ${t(U.serH)}</h2>
     <div class="sum-kpis ser"><div><b>${tot.n}</b><span>${t(U.serTotal)}</span></div><div><b>${tot.inq}</b><span>${t(U.serIn)}</span></div><div class="k-done"><b>${tot.done}</b><span>${t(U.shot)}</span></div><div><b>${tot.n-tot.done}</b><span>${t(U.serLeft)}</span></div></div>
     <div class="sum-pct"><b>${tot.n?Math.round(tot.done/tot.n*100):0}%</b>${bar(tot)}</div>
-    <div class="train-scroll"><table class="sum-ep"><thead><tr><th>EP</th><th>${t(U.serScr)}</th><th>${t(U.serQ)}</th><th class="c-done">✓ ${t(U.shot)}</th><th>${t(U.left)}</th><th class="c-ns">✕ ${t(U.nsShort)}</th><th class="c-out">${t(U.serOut)}</th><th></th></tr></thead><tbody>
+    <div class="train-scroll"><table class="sum-ep"><thead><tr><th>EP</th><th>${t(U.serScr)}</th><th>${t(U.serQ)}</th><th class="c-done">✓ ${t(U.shot)}</th><th>${t(U.left)}</th><th class="c-ns">✕ ${t(U.nsShort)}</th><th class="c-ns">${t(U.serJp)}</th><th class="c-out">${t(U.serOut)}</th><th></th></tr></thead><tbody>
     ${rows.map(c=>tr(c,"EP."+c.ep)).join("")}${tr(tot,t(U.serSum),"sum-tot")}</tbody></table></div>
-    <div class="sum-leg"><span><i class="b-done"></i>${t(U.shot)}</span><span><i class="b-ns"></i>${t(U.notL)}</span><span><i class="b-pend"></i>${t(U.serQ)}</span><span><i></i>${t(U.serOut)}</span></div>
+    <div class="sum-leg"><span><i class="b-done"></i>${t(U.shot)}</span><span><i class="b-ns"></i>${t(U.notL)}</span><span><i class="b-pend"></i>${t(U.serQ)}</span><span><i></i>${t(U.serJp)} / ${t(U.serOut)}</span></div>
     <p class="sum-note">${t(U.serNote)}${extra.length?` · ${t(U.serExtra)}: ${esc(extra.join(", "))}`:""}</p>
-    <details class="ser-out"><summary>${t(U.serOutH)} <b class="ns-n">${outL.length}</b></summary>
-      ${rows.filter(c=>c.out).map(c=>`<h4>EP.${c.ep} <small>${c.out}/${c.n}</small></h4><ul>${outL.filter(o=>o[0]===c.ep).map(o=>`<li><button type="button" class="ns-go" data-scr="${esc(o[1][0])}"><span class="sid">${esc(o[1][0].replace(/^EP\.\d+ /,""))}</span> <span class="ns-pl">${esc(head(o[1]))}</span></button></li>`).join("")}</ul>`).join("")}</details></section>`;
+    ${[[jpL,"jp",U.serJpH,"jp"],[outL,"out",U.serOutH,"out"]].map(([Lst,key,H,cl])=>Lst.length?`<details class="ser-out ${cl}"${key==="jp"?" open":""}><summary>${t(H)} <b class="ns-n">${Lst.length}</b></summary>
+      ${rows.filter(c=>c[key]).map(c=>`<h4>EP.${c.ep} <small>${c[key]}/${c.n}</small></h4><ul>${Lst.filter(o=>o[0]===c.ep).map(o=>`<li><button type="button" class="ns-go" data-scr="${esc(o[1][0])}"><span class="sid">${esc(o[1][0].replace(/^EP\.\d+ /,""))}</span> <span class="ns-pl">${esc(head(o[1]))}</span></button></li>`).join("")}</ul>`).join("")}</details>`:"").join("")}</section>`;
   return h;
 }
 function notShotSec(d){
