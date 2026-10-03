@@ -725,6 +725,8 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .ser-out.jp summary{color:#B91C1C}
 [data-theme="dark"] .ser-out.jp summary{color:#F87171}
 .sum-ep{min-width:380px}
+.ser-sx{list-style:none;margin:8px 0 0;padding:0;font-size:13px;display:grid;gap:3px}
+.ser-sx small{color:var(--ink-3)}
 </style>
 </head>
 <body>
@@ -2118,6 +2120,10 @@ const SCENE_ALIAS = {
 };
 /* Thai-heading keywords that mean the scene is set in Japan (used to split unscheduled scenes into "Japan, missing from the breakdown" vs "shot elsewhere"). */
 const JAPAN_RE = /ญี่ปุ่น|ฮิเมจิ|Sanyo|รถไฟ|กระเช้า|ซุปเปอร์|ซ่อมกีต้าร์|หินหัวเต่า|อิเอชิมะ|อิเมชิมะ|nuages|โมริ|hamamoto|JR|piole|แมนชั่นของเฟม/i;
+/* Script scenes already shot that have no row in the breakdown (reported by production). Counted as scheduled + shot in the Summary. */
+const SHOT_EXTRA = {
+  "EP.2 SC.7A": L("ถ่ายแล้วที่ร้าน Bon Marché (ซูเปอร์มาร์เก็ต)","Bon Marché（スーパー）で撮影済み","Shot at Bon Marché (supermarket)")
+};
 
 /* Shooting Board (RSN_STB Working file.key) — blockshot frames per scene.
    Each group: slide, scenes (breakdown ids), loc (fallback Thai location name when no scene), desc, frames [file…], notes.
@@ -5688,7 +5694,7 @@ const UI = {
     rowsNote:L("นับตามแถวซีนใน Breakdown (1 แถวอาจรวมหลายซีน เช่น SC.18,19,20) · ติ๊กสถานะได้ที่แท็บ ตารางถ่าย","ブレイクダウンのシーン行数で集計（1行に複数シーンを含む場合あり）· ステータスはスケジュールタブで記入","Counted by breakdown scene rows (one row may cover several scenes, e.g. SC.18,19,20) · mark status in the Schedule tab"),
     open:L("เปิดตารางวันนี้","この日のスケジュール","Open schedule"),
     serH:L("ทั้งซีรีส์ตามบท (EP.1–10)","シリーズ全体・台本ベース（EP.1〜10）","Whole series by script (EP.1–10)"), serTotal:L("ซีนในบททั้งหมด","台本の全シーン","Script scenes"), serIn:L("อยู่ในคิวญี่ปุ่น","日本ロケ香盤内","On Japan schedule"), serLeft:L("เหลือทั้งซีรีส์","シリーズ残り","Left in series"),
-    serScr:L("บท","台本","Script"), serQ:L("ในคิว","香盤内","Sched."), serJp:L("🇯🇵 ไม่มีคิว","🇯🇵 香盤なし","🇯🇵 no slot"), serJpH:L("⚠️ ซีนญี่ปุ่นที่ยังไม่มีในเบรกดาวน์ (ต้องตรวจ)","⚠️ 日本ロケのシーンで香盤にないもの（要確認）","⚠️ Japan scenes missing from the breakdown (check)"), serOut:L("ถ่ายที่อื่น","日本以外","Elsewhere"), serSum:L("รวม","合計","Total"),
+    serScr:L("บท","台本","Script"), serQ:L("ในคิว","香盤内","Sched."), serSx:L("ไม่มีแถวในเบรกดาวน์","香盤に行なし","no breakdown row"), serJp:L("🇯🇵 ไม่มีคิว","🇯🇵 香盤なし","🇯🇵 no slot"), serJpH:L("⚠️ ซีนญี่ปุ่นที่ยังไม่มีในเบรกดาวน์ (ต้องตรวจ)","⚠️ 日本ロケのシーンで香盤にないもの（要確認）","⚠️ Japan scenes missing from the breakdown (check)"), serOut:L("ถ่ายที่อื่น","日本以外","Elsewhere"), serSum:L("รวม","合計","Total"),
     serNote:L("นับตามเลขซีนในบทไฟนอล 22.09.26 (EP.9–10 = Draft 4) แล้วจับคู่กับเบรกดาวน์ · ซีน Flashback / Flash forward นับตามซีนต้นทาง · เลขซีนที่บทกับ Call Sheet ไม่ตรงกันจับคู่จากคำบรรยาย · นับว่าถ่ายแล้วเมื่อทุกแถวของซีนนั้นถูกติ๊ก","台本決定稿22.09.26（EP.9〜10はDraft 4）のシーン番号を香盤と照合 · 回想／フラッシュフォワードは元シーンで判定 · 台本と香盤で番号が違うものは内容で照合 · 該当行がすべてチェック済みで撮影済み扱い","Counted by scene number in the final script 22.09.26 (EP.9–10 = Draft 4) and matched to the breakdown · flashbacks / flash-forwards follow their source scene · scenes numbered differently in script and call sheet are matched by description · a scene counts as shot when every row for it is ticked"),
     serExtra:L("มีในเบรกดาวน์แต่ไม่มีในบท","香盤にあるが台本にないシーン","In the breakdown but not in the script"),
     serOutH:L("ซีนที่ไม่ได้ถ่ายที่ญี่ปุ่น (ไทย / อื่นๆ)","日本以外で撮影するシーン（タイほか）","Scenes shot outside Japan (Thailand / other)"),
@@ -6633,7 +6639,8 @@ function seriesSec(all,S){
   Object.values(SCRIPT_SCENES).forEach(a=>a.forEach(sc=>heads[sc[0]]=sc[1]));
   const refOf=id=>{ const h=heads[id]||""; if(!/FLASH/i.test(h)) return null; const m=/EP\.?\s*(\d+)\s*SC\.?\s*(\d+[A-Z]?)/i.exec(h.replace(/^\(Sc\.\d+/i,"(")); return m?`EP.${m[1]} SC.${m[2].toUpperCase()}`:null; };
   const rowsOf=(id,depth)=>{ let r=(cov[id]||[]).slice(); if(depth>3) return r; const al=(AL[id]||[]).concat(r.length?[]:(refOf(id)?[refOf(id)]:[])); al.forEach(k=>{ if(k!==id) r=r.concat(rowsOf(k,(depth||0)+1)); }); return [...new Set(r)]; };
-  const stOf=k=>{ const r=rowsOf(k,0); if(!r.length) return "out"; if(r.some(x=>S(x)==="notshot")) return "ns"; return r.every(x=>S(x)==="done")?"done":"pend"; };
+  const SX=typeof SHOT_EXTRA!=="undefined"?SHOT_EXTRA:{};
+  const stOf=k=>{ if(SX[k]) return "done"; const r=rowsOf(k,0); if(!r.length) return "out"; if(r.some(x=>S(x)==="notshot")) return "ns"; return r.every(x=>S(x)==="done")?"done":"pend"; };
   const inScript=new Set(), rows=[], tot={n:0,inq:0,done:0,ns:0,jp:0,out:0}, outL=[], jpL=[];
   const JRE=typeof JAPAN_RE!=="undefined"?JAPAN_RE:/ญี่ปุ่น/;
   Object.keys(SCRIPT_SCENES).map(Number).sort((a,b)=>a-b).forEach(ep=>{
@@ -6655,6 +6662,7 @@ function seriesSec(all,S){
     ${rows.map(c=>tr(c,"EP."+c.ep)).join("")}${tr(tot,t(U.serSum),"sum-tot")}</tbody></table></div>
     <div class="sum-leg"><span><i class="b-done"></i>${t(U.shot)}</span><span><i class="b-ns"></i>${t(U.notL)}</span><span><i class="b-pend"></i>${t(U.serQ)}</span><span><i></i>${t(U.serJp)} / ${t(U.serOut)}</span></div>
     <p class="sum-note">${t(U.serNote)}${extra.length?` · ${t(U.serExtra)}: ${esc(extra.join(", "))}`:""}</p>
+    ${Object.keys(SX).length?`<ul class="ser-sx">${Object.keys(SX).map(k=>`<li><span class="c-done">✓</span> <b>${esc(k)}</b> — ${esc(t(SX[k]))} <small>(${t(U.serSx)})</small></li>`).join("")}</ul>`:""}
     ${[[jpL,"jp",U.serJpH,"jp"],[outL,"out",U.serOutH,"out"]].map(([Lst,key,H,cl])=>Lst.length?`<details class="ser-out ${cl}"${key==="jp"?" open":""}><summary>${t(H)} <b class="ns-n">${Lst.length}</b></summary>
       ${rows.filter(c=>c[key]).map(c=>`<h4>EP.${c.ep} <small>${c[key]}/${c.n}</small></h4><ul>${Lst.filter(o=>o[0]===c.ep).map(o=>`<li><button type="button" class="ns-go" data-scr="${esc(o[1][0])}"><span class="sid">${esc(o[1][0].replace(/^EP\.\d+ /,""))}</span> <span class="ns-pl">${esc(head(o[1]))}</span></button></li>`).join("")}</ul>`).join("")}</details>`:"").join("")}</section>`;
   return h;
