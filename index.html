@@ -690,6 +690,21 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .sum-leg i.b-ns{background:#DC2626}
 .ann .ann-link{display:inline-block;margin-left:4px;padding:1px 9px;border-radius:999px;background:#1C1917;color:#FEF9C3;text-decoration:none;font-size:12.5px}
 [data-theme="dark"] .ann .ann-link{background:#FBBF24;color:#1C1917}
+/* hourly weather 07–19 */
+.wx-hh-t{font-size:11.5px;color:var(--ink-3);font-weight:600;margin:8px 0 4px}
+.wx-hh{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(52px,1fr);gap:4px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.wx-h{display:grid;justify-items:center;gap:1px;padding:5px 2px;border-radius:8px;background:var(--chip);font-variant-numeric:tabular-nums;line-height:1.25}
+.wx-h small{font-size:10.5px;color:var(--ink-3);font-weight:600}
+.wx-h i{font-style:normal;font-size:17px;line-height:1.2}
+.wx-h b{font-size:13.5px}
+.wx-h span{font-size:10.5px;color:var(--ink-2);white-space:nowrap}
+.wx-h .pp{font-weight:700;color:var(--ink)}
+.wx-h.mid{background:#FEF3C7} .wx-h.bad{background:#DBEAFE}
+.wx-h.mid .pp{color:#B45309} .wx-h.bad .pp{color:#1D4ED8}
+[data-theme="dark"] .wx-h.mid{background:#3A2A08} [data-theme="dark"] .wx-h.bad{background:#14284A}
+[data-theme="dark"] .wx-h.mid .pp{color:#FBBF24} [data-theme="dark"] .wx-h.bad .pp{color:#93C5FD}
+.wx-h.now{box-shadow:0 0 0 2px var(--now) inset}
+@media print{ .wx-hh-t,.wx-hh{display:none!important} }
 </style>
 </head>
 <body>
@@ -5594,6 +5609,7 @@ const UI = {
     running:L("กำลังวิ่ง (ถ่ายทำ) · ถึง Oshio อีก {t}","走行中（撮影）· 大塩まであと{t}","Running (shooting) · Oshio in {t}"),
     back:L("ขากลับ · ถึงฮิเมจิอีก {t}","戻り · 姫路まであと{t}","Returning · Himeji in {t}"), gone:L("ผ่านไปแล้ว","通過済み","Done"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
   listen: L("ฟังเพลง","曲を聴く","Listen"),
+  wxHourly: L("รายชั่วโมง 07:00–19:00 (อุณหภูมิ · โอกาสฝน · ปริมาณฝน · ลม)","1時間ごと 07:00〜19:00（気温・降水確率・降水量・風）","Hourly 07:00–19:00 (temp · rain chance · rainfall · wind)"),
   annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
   sos: L("เบอร์ฉุกเฉิน","緊急連絡先","Emergency numbers"), sosLead: L("แตะเบอร์เพื่อโทรได้ทันที","番号をタップで発信","Tap a number to call"), sosTip: L("บอกที่อยู่ได้จากปุ่ม Google Maps ของโลเคชั่น","住所はロケ地のGoogleマップボタンで確認","Get the address from the location's Google Maps button"),
   prepH: L("เตรียมตัว / ยังขาด","準備・不足情報","Prep / still missing"), prepLead: L("รวบรวมจาก Breakdown, พยากรณ์, บท, บอร์ด และคอสตูมบุ๊ก — กรองตามทีมได้","ブレイクダウン・天気・台本・ボード・衣装ブックから集約 — チーム別に絞り込み可","Compiled from the breakdown, forecast, script, board and costume book — filter by team"),
@@ -5825,6 +5841,7 @@ function render(){
   if(!d){ main.innerHTML=`<p class="empty">${t(UI.soon)}</p>`; return; }
   main.innerHTML=tab===6?summaryTab():head(d)+(tab===0?schedule(d):tab===1?shotsTab(d):tab===2?calls(d):tab===3?notes(d):tab===4?costumeTab(d):scriptTab(d));
   tickTrains();
+  document.querySelectorAll(".wx-h.now").forEach(el=>{ const p=el.parentNode; p.scrollLeft=el.offsetLeft-p.offsetLeft-60; });
   document.getElementById("foot").textContent=t(UI.foot);
   document.getElementById("shareH").textContent=t(UI.shareH);
   document.getElementById("shareP").textContent=t(UI.shareP);
@@ -5900,6 +5917,12 @@ function annBlock(d){
   const a=ANNOUNCE.filter(x=>x.day===d.day); if(!a.length) return "";
   return a.map(x=>`<section class="ann"><h3>📣 ${t(UI.annH)} <small>${esc(fmtDate(x.posted,false))}</small></h3><ul>${x.items.map(it=>`<li class="${it.warn?"warn":""}"><span>${it.icon||"•"}</span><div>${esc(t(it.t))}${it.map?` <a href="${esc(it.map)}" target="_blank" rel="noopener">📍 Google Maps</a>`:""}${it.link?` <a class="ann-link" href="${esc(it.link)}" target="_blank" rel="noopener">▶ ${t(UI.listen)}</a>`:""}</div></li>`).join("")}</ul></section>`).join("");
 }
+function wxIcon(c){ return c<=1?"☀️":c<=2?"⛅":c<=3?"☁️":c<=48?"🌫️":c<=57?"🌦️":c<=67?"🌧️":c<=77?"🌨️":c<=82?"🌧️":c<=86?"🌨️":"⛈️"; }
+function wxHours(d,w){
+  const nowH=d.date===tokyoDate()?Math.floor(tokyoMinutes()/60):-1;
+  return `<div class="wx-hh-t">${t(UI.wxHourly)}</div><div class="wx-hh" role="list">${w.h.map(o=>{ const pop=o.pop??0;
+    return `<div role="listitem" class="wx-h${o.hr===nowH?" now":""}${pop>=70?" bad":pop>=40?" mid":""}" title="${esc(t(wmo(o.c)))}"><small>${String(o.hr).padStart(2,"0")}:00</small><i>${wxIcon(o.c)}</i><b>${Math.round(o.t)}°</b><span class="pp">☂ ${pop}%</span><span class="mm">${o.mm?o.mm.toFixed(1)+" mm":"–"}</span><span class="wd">${Math.round(o.w)} km/h</span></div>`; }).join("")}</div>`;
+}
 function wxBlock(d,w){
   const lbl=["00","06","12","18"];
   const cls=w.pop>=70?"wx-bad":w.pop>=40?"wx-mid":"wx-ok";
@@ -5908,7 +5931,7 @@ function wxBlock(d,w){
     ${w.live?`<div class="wx-live"><i></i>LIVE · ${t(UI.wxUpd)} ${hhmm(LIVEWX.at)} · ${esc(t(WX_PTS[w.pt].name))}</div>`:""}
     ${now?`<div class="wx-now">${t(UI.wxNowLbl)} <b>${Math.round(now.temperature_2m)}°</b> ${esc(t(wmo(now.weather_code)))}${now.precipitation?` · ${now.precipitation} ${t(UI.mm)}`:""} · ${t(UI.wind)} ${Math.round(now.wind_speed_10m)} km/h</div>`:""}
     <div class="wx-top"><span class="wx-cond">${esc(t(w.cond))}</span><span class="wx-pop">☂︎ ${w.pop}%${w.mm?` · ${w.mm} ${t(UI.mm)}`:""}</span><span class="wx-sun">☀︎ ${w.sr}–${w.ss}</span></div>
-    <div class="wx-bars">${w.p.map((v,i)=>`<div class="wx-b" style="--p:${v}"><small>${lbl[i]}</small><span>${v}%</span></div>`).join("")}</div>
+    ${w.h&&w.h.length?wxHours(d,w):`<div class="wx-bars">${w.p.map((v,i)=>`<div class="wx-b" style="--p:${v}"><small>${lbl[i]}</small><span>${v}%</span></div>`).join("")}</div>`}
     ${w.note?`<p class="wx-note">${w.live?`<small>${t(UI.wxNoteOld)}</small> `:""}${esc(t(w.note))}</p>`:""}
     <p class="wx-src">${w.live?`Open-Meteo (JMA/ECMWF) · ${t(UI.wxAuto)}`:`${esc(t(WX_ISSUED))} · <a href="${WX_SRC}" target="_blank" rel="noopener">tenki.jp</a>`} · ${t(UI.wxSheet)}: ${esc(t(d.rain))}, ${d.hi}°/${d.lo}°C</p>
   </div>`;
@@ -5934,13 +5957,14 @@ function wxFor(d){
 async function loadLiveWx(){
   try{
     await Promise.all(Object.entries(WX_PTS).map(async([k,pt])=>{
-      const u=`https://api.open-meteo.com/v1/forecast?latitude=${pt.lat}&longitude=${pt.lon}&hourly=precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,sunrise,sunset&current=temperature_2m,weather_code,precipitation,wind_speed_10m&timezone=Asia%2FTokyo&forecast_days=16`;
+      const u=`https://api.open-meteo.com/v1/forecast?latitude=${pt.lat}&longitude=${pt.lon}&hourly=precipitation_probability,temperature_2m,weather_code,precipitation,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,sunrise,sunset&current=temperature_2m,weather_code,precipitation,wind_speed_10m&timezone=Asia%2FTokyo&forecast_days=16`;
       const j=await (await fetch(u)).json(); if(!j.daily) return;
       const dd=j.daily, hp=j.hourly, days={};
       dd.time.forEach((date,i)=>{
         const p=[0,1,2,3].map(b=>{ let m=0; for(let h=0;h<6;h++){ const v=hp.precipitation_probability[i*24+b*6+h]; if(v!=null&&v>m) m=v; } return m; });
         days[date]={cond:wmo(dd.weather_code[i]),pop:dd.precipitation_probability_max[i]??Math.max(...p),mm:Math.round((dd.precipitation_sum[i]||0)*10)/10,
-          hi:Math.round(dd.temperature_2m_max[i]),lo:Math.round(dd.temperature_2m_min[i]),sr:dd.sunrise[i].slice(11),ss:dd.sunset[i].slice(11),p};
+          hi:Math.round(dd.temperature_2m_max[i]),lo:Math.round(dd.temperature_2m_min[i]),sr:dd.sunrise[i].slice(11),ss:dd.sunset[i].slice(11),p,
+          h:Array.from({length:13},(_,n)=>{ const x=i*24+7+n; return {hr:7+n,pop:hp.precipitation_probability[x],t:hp.temperature_2m[x],c:hp.weather_code[x],mm:hp.precipitation[x],w:hp.wind_speed_10m[x]}; }).filter(o=>o.t!=null)};
       });
       LIVEWX.days[k]=days; LIVEWX.cur[k]=j.current;
     }));
