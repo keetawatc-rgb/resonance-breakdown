@@ -5612,7 +5612,7 @@ const UI = {
     running:L("กำลังวิ่ง (ถ่ายทำ) · ถึง Oshio อีก {t}","走行中（撮影）· 大塩まであと{t}","Running (shooting) · Oshio in {t}"),
     back:L("ขากลับ · ถึงฮิเมจิอีก {t}","戻り · 姫路まであと{t}","Returning · Himeji in {t}"), gone:L("ผ่านไปแล้ว","通過済み","Done"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
   listen: L("ฟังเพลง","曲を聴く","Listen"),
-  wxHourly: L("07:00–19:00 ทุก 1 ชม. · ก่อน 07:00 และหลัง 20:00 ทุก 2 ชม. (อุณหภูมิ · โอกาสฝน · ปริมาณฝน · ลม)","07:00〜19:00は1時間ごと · 07:00以前と20:00以降は2時間ごと（気温・降水確率・降水量・風）","07:00–19:00 hourly · before 07:00 and after 20:00 every 2 hrs (temp · rain chance · rainfall · wind)"),
+  wxHourly: L("06:00–19:00 ทุก 1 ชม. · 20:00–22:00 รวม 2 ชม. (อุณหภูมิ · โอกาสฝน · ปริมาณฝน · ลม)","06:00〜19:00は1時間ごと · 20:00〜22:00は2時間まとめ（気温・降水確率・降水量・風）","06:00–19:00 hourly · 20:00–22:00 as one 2-hr block (temp · rain chance · rainfall · wind)"),
   annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
   sos: L("เบอร์ฉุกเฉิน","緊急連絡先","Emergency numbers"), sosLead: L("แตะเบอร์เพื่อโทรได้ทันที","番号をタップで発信","Tap a number to call"), sosTip: L("บอกที่อยู่ได้จากปุ่ม Google Maps ของโลเคชั่น","住所はロケ地のGoogleマップボタンで確認","Get the address from the location's Google Maps button"),
   prepH: L("เตรียมตัว / ยังขาด","準備・不足情報","Prep / still missing"), prepLead: L("รวบรวมจาก Breakdown, พยากรณ์, บท, บอร์ด และคอสตูมบุ๊ก — กรองตามทีมได้","ブレイクダウン・天気・台本・ボード・衣装ブックから集約 — チーム別に絞り込み可","Compiled from the breakdown, forecast, script, board and costume book — filter by team"),
@@ -5967,7 +5967,7 @@ async function loadLiveWx(){
         const p=[0,1,2,3].map(b=>{ let m=0; for(let h=0;h<6;h++){ const v=hp.precipitation_probability[i*24+b*6+h]; if(v!=null&&v>m) m=v; } return m; });
         days[date]={cond:wmo(dd.weather_code[i]),pop:dd.precipitation_probability_max[i]??Math.max(...p),mm:Math.round((dd.precipitation_sum[i]||0)*10)/10,
           hi:Math.round(dd.temperature_2m_max[i]),lo:Math.round(dd.temperature_2m_min[i]),sr:dd.sunrise[i].slice(11),ss:dd.sunset[i].slice(11),p,
-          h:[[1,3],[3,5],[5,7],...Array.from({length:13},(_,n)=>[7+n,8+n]),[20,22]].map(([a,b])=>{ const xs=[]; for(let x=a;x<b;x++) xs.push(i*24+x); const g=k=>xs.map(x=>hp[k][x]).filter(v=>v!=null);
+          h:[...Array.from({length:14},(_,n)=>[6+n,7+n]),[20,22]].map(([a,b])=>{ const xs=[]; for(let x=a;x<b;x++) xs.push(i*24+x); const g=k=>xs.map(x=>hp[k][x]).filter(v=>v!=null);
             const T=g("temperature_2m"); if(!T.length) return null;
             return {hr:a,to:b-a>1?b:0,pop:Math.max(0,...g("precipitation_probability")),t:T.reduce((p,c)=>p+c,0)/T.length,c:Math.max(...g("weather_code")),mm:g("precipitation").reduce((p,c)=>p+c,0),w:Math.max(...g("wind_speed_10m"))}; }).filter(Boolean)};
       });
