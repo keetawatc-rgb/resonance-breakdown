@@ -731,6 +731,19 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .van-dep.late{background:#FEF3C7;color:#92400E;font-weight:600}
 [data-theme="dark"] .van-dep.late{background:#3A2A08;color:#FBBF24}
 .van-x{margin:18px 0 8px;font-size:16px}
+/* rain nowcast */
+.wx-rain{font-size:12.5px;margin:6px 0 2px;padding:5px 9px;border-radius:8px;background:var(--chip);line-height:1.5}
+.wx-rain.later{background:#FEF3C7;color:#92400E}
+.wx-rain.soon,.wx-rain.now{background:#DBEAFE;color:#1E3A8A;font-weight:700}
+[data-theme="dark"] .wx-rain.later{background:#3A2A08;color:#FBBF24}
+[data-theme="dark"] .wx-rain.soon,[data-theme="dark"] .wx-rain.now{background:#14284A;color:#BFDBFE}
+.rain-nt{font:inherit;font-size:12px;font-weight:700;border:1px solid currentColor;background:none;color:inherit;border-radius:999px;padding:1px 9px;margin-left:4px;cursor:pointer}
+.rain-bar{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:80;background:#1D4ED8;color:#fff;border-radius:14px;padding:11px 44px 10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.28);transform:translateY(-160%);transition:transform .3s;max-width:640px;margin:0 auto}
+.rain-bar.show{transform:none}
+.rain-bar b{display:block;font-size:15px;line-height:1.35}
+.rain-bar small{display:block;font-size:11.5px;opacity:.85;margin-top:2px}
+.rain-bar button{position:absolute;right:6px;top:6px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:15px;cursor:pointer}
+@media print{ .rain-bar,.wx-rain{display:none!important} }
 </style>
 </head>
 <body>
@@ -5759,6 +5772,10 @@ const UI = {
     running:L("กำลังวิ่ง (ถ่ายทำ) · ถึง Oshio อีก {t}","走行中（撮影）· 大塩まであと{t}","Running (shooting) · Oshio in {t}"),
     back:L("ขากลับ · ถึงฮิเมจิอีก {t}","戻り · 姫路まであと{t}","Returning · Himeji in {t}"), gone:L("ผ่านไปแล้ว","通過済み","Done"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
   vanDep: L("ออกจากโรงแรม","ホテル出発","Leave hotel"), vanFerry: L("ขึ้นเรือ","乗船","Ferry"),
+  rain: { h:L("เตือนฝนล่วงหน้า 20 นาที","雨の20分前アラート","Rain alert, 20 min ahead"), none:L("ไม่มีฝนใน 2 ชม. ข้างหน้า","今後2時間は雨なし","No rain in the next 2 hrs"),
+    soon:L("ฝนจะตกในอีก ~{m} นาที (ราว {t})","あと約{m}分で雨（{t}頃）","Rain in ~{m} min (around {t})"), later:L("คาดว่าฝนเริ่มราว {t} (อีก ~{m} นาที)","{t}頃から雨の見込み（約{m}分後）","Rain expected around {t} (in ~{m} min)"),
+    now:L("ฝนกำลังตก / กำลังจะตก","雨が降っています／まもなく","Raining now / about to start"), until:L("ถึง","〜","until"), allow:L("เปิดแจ้งเตือน","通知をオン","Enable notifications"),
+    src:L("พยากรณ์ราย 15 นาที Open-Meteo — เผื่อคลาดเคลื่อน","Open-Meteo 15分予報 — 誤差あり","Open-Meteo 15-min forecast — may be off") },
   listen: L("ฟังเพลง","曲を聴く","Listen"),
   wxHourly: L("06:00–19:00 ทุก 1 ชม. · 20:00–22:00 รวม 2 ชม. (อุณหภูมิ · โอกาสฝน · ปริมาณฝน · ลม)","06:00〜19:00は1時間ごと · 20:00〜22:00は2時間まとめ（気温・降水確率・降水量・風）","06:00–19:00 hourly · 20:00–22:00 as one 2-hr block (temp · rain chance · rainfall · wind)"),
   annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
@@ -5996,7 +6013,7 @@ function render(){
   const main=document.getElementById("main");
   if(!d){ main.innerHTML=`<p class="empty">${t(UI.soon)}</p>`; return; }
   main.innerHTML=tab===6?summaryTab():head(d)+(tab===0?schedule(d):tab===1?shotsTab(d):tab===2?calls(d):tab===3?notes(d):tab===4?costumeTab(d):scriptTab(d));
-  tickTrains();
+  tickTrains(); rainTick();
   document.querySelectorAll(".wx-h.now").forEach(el=>{ const p=el.parentNode; p.scrollLeft=el.offsetLeft-p.offsetLeft-60; });
   document.getElementById("foot").textContent=t(UI.foot);
   document.getElementById("shareH").textContent=t(UI.shareH);
@@ -6073,6 +6090,45 @@ function annBlock(d){
   const a=ANNOUNCE.filter(x=>x.day===d.day); if(!a.length) return "";
   return a.map(x=>`<section class="ann"><h3>📣 ${t(UI.annH)} <small>${esc(fmtDate(x.posted,false))}</small></h3><ul>${x.items.map(it=>`<li class="${it.warn?"warn":""}"><span>${it.icon||"•"}</span><div>${esc(t(it.t))}${it.map?` <a href="${esc(it.map)}" target="_blank" rel="noopener">📍 Google Maps</a>`:""}${it.link?` <a class="ann-link" href="${esc(it.link)}" target="_blank" rel="noopener">▶ ${t(UI.listen)}</a>`:""}</div></li>`).join("")}</ul></section>`).join("");
 }
+/* ---- rain nowcast: Open-Meteo 15-minute precipitation for today's location; warns 20 min before rain starts ---- */
+const RAIN={at:null,slots:[],pt:null,fired:{},hide:""}, RAIN_LEAD=20;
+function rainPoint(){ const d=DAYS.find(x=>x.date===tokyoDate()); return d?wxPoint(d):"himeji"; }
+async function loadRain(){
+  const pt=rainPoint(), P=WX_PTS[pt], test=qs.get("raintest");
+  try{
+    if(test!=null){ const now=tokyoMinutes(), st=now+(+test); RAIN.slots=[0,1,2,3].map(i=>({end:Math.ceil((st+1)/15)*15+i*15,mm:i<3?0.6:0})).map(o=>(o.start=o.end-15,o)); RAIN.slots[0].start=st; }
+    else{
+      const j=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${P.lat}&longitude=${P.lon}&minutely_15=precipitation&forecast_minutely_15=10&timezone=Asia%2FTokyo`)).json(); if(!j.minutely_15) return;
+      const today=tokyoDate();
+      RAIN.slots=j.minutely_15.time.map((tm,i)=>{ const end=mins(tm.slice(11))+(tm.slice(0,10)>today?1440:0); return {start:end-15,end,mm:j.minutely_15.precipitation[i]||0}; });
+    }
+    RAIN.at=new Date(); RAIN.pt=pt; rainTick();
+  }catch(e){}
+}
+function rainState(){
+  if(!RAIN.at) return null; const now=tokyoMinutes(), w=RAIN.slots.filter(o=>o.end>now); const i=w.findIndex(o=>o.mm>=0.1);
+  if(i<0) return {k:"none"};
+  let j=i; while(j+1<w.length&&w[j+1].mm>=0.1) j++;
+  const mm=Math.round(w.slice(i,j+1).reduce((a,o)=>a+o.mm,0)*10)/10, inM=Math.max(0,w[i].start-now), hm=m=>String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+  return {k:inM===0?"now":inM<=RAIN_LEAD?"soon":"later",inM,at:hm(w[i].start),until:hm(w[j].end),open:j===w.length-1,mm,key:tokyoDate()+"-"+w[i].start};
+}
+function rainText(r){ const U=UI.rain; if(!r) return ""; if(r.k==="none") return t(U.none);
+  const tail=` · ${r.mm} ${t(UI.mm)}`+(r.open?"":` · ${t(U.until)} ~${r.until}`);
+  return (r.k==="now"?t(U.now):t(r.k==="soon"?U.soon:U.later).replace("{m}",r.inM).replace("{t}",r.at))+tail; }
+function rainTick(){
+  const r=rainState(); let el=document.getElementById("rainBar");
+  document.querySelectorAll(".wx-rain").forEach(x=>{ x.className="wx-rain "+(r?r.k:"none"); x.querySelector("span").textContent=r?rainText(r):"…"; });
+  const show=r&&(r.k==="soon"||r.k==="now")&&RAIN.hide!==r.key;
+  if(!show){ if(el) el.classList.remove("show"); return; }
+  if(!el){ el=document.createElement("div"); el.id="rainBar"; el.className="rain-bar"; el.setAttribute("role","alert"); document.body.appendChild(el); }
+  el.innerHTML=`<b>☔ ${esc(rainText(r))}</b><small>${esc(t(WX_PTS[RAIN.pt].name))} · ${t(UI.rain.src)}</small><button type="button" data-rainhide="${r.key}" aria-label="close">✕</button>`;
+  el.classList.add("show");
+  if(r.k==="soon"&&!RAIN.fired[r.key]){ RAIN.fired[r.key]=1;
+    try{ navigator.vibrate&&navigator.vibrate([200,100,200]); }catch(e){}
+    try{ if("Notification" in window&&Notification.permission==="granted") new Notification("RESONANCE ☔",{body:rainText(r),tag:"rain"}); }catch(e){} }
+}
+function rainLine(d){ if(d.date!==tokyoDate()) return ""; const np="Notification" in window?Notification.permission:"x";
+  return `<div class="wx-rain none"><b>☔ ${t(UI.rain.h)}</b> <span>…</span>${np==="default"?` <button type="button" class="rain-nt" data-rainnt="1">🔔 ${t(UI.rain.allow)}</button>`:""}</div>`; }
 function wxIcon(c){ return c<=1?"☀️":c<=2?"⛅":c<=3?"☁️":c<=48?"🌫️":c<=57?"🌦️":c<=67?"🌧️":c<=77?"🌨️":c<=82?"🌧️":c<=86?"🌨️":"⛈️"; }
 function wxHours(d,w){
   const nowH=d.date===tokyoDate()?Math.floor(tokyoMinutes()/60):-1;
@@ -6087,6 +6143,7 @@ function wxBlock(d,w){
     ${w.live?`<div class="wx-live"><i></i>LIVE · ${t(UI.wxUpd)} ${hhmm(LIVEWX.at)} · ${esc(t(WX_PTS[w.pt].name))}</div>`:""}
     ${now?`<div class="wx-now">${t(UI.wxNowLbl)} <b>${Math.round(now.temperature_2m)}°</b> ${esc(t(wmo(now.weather_code)))}${now.precipitation?` · ${now.precipitation} ${t(UI.mm)}`:""} · ${t(UI.wind)} ${Math.round(now.wind_speed_10m)} km/h</div>`:""}
     <div class="wx-top"><span class="wx-cond">${esc(t(w.cond))}</span><span class="wx-pop">☂︎ ${w.pop}%${w.mm?` · ${w.mm} ${t(UI.mm)}`:""}</span><span class="wx-sun">☀︎ ${w.sr}–${w.ss}</span></div>
+    ${w.live?rainLine(d):""}
     ${w.h&&w.h.length?wxHours(d,w):`<div class="wx-bars">${w.p.map((v,i)=>`<div class="wx-b" style="--p:${v}"><small>${lbl[i]}</small><span>${v}%</span></div>`).join("")}</div>`}
     ${w.note?`<p class="wx-note">${w.live?`<small>${t(UI.wxNoteOld)}</small> `:""}${esc(t(w.note))}</p>`:""}
     <p class="wx-src">${w.live?`Open-Meteo (JMA/ECMWF) · ${t(UI.wxAuto)}`:`${esc(t(WX_ISSUED))} · <a href="${WX_SRC}" target="_blank" rel="noopener">tenki.jp</a>`} · ${t(UI.wxSheet)}: ${esc(t(d.rain))}, ${d.hi}°/${d.lo}°C</p>
@@ -6851,6 +6908,8 @@ document.addEventListener("click",async e=>{
   if(b.dataset.lb){ openLB(dayNo,b.dataset.lb,+b.dataset.idx); return; }
   if(b.dataset.mapedit){ editMap(b); return; }
   if(b.dataset.parkedit){ editPark(b); return; }
+  if(b.dataset.rainhide){ RAIN.hide=b.dataset.rainhide; rainTick(); return; }
+  if(b.dataset.rainnt){ try{ await Notification.requestPermission(); }catch(e){} render(); return; }
   if(b.dataset.prep){ togglePrep(b.dataset.prep); return; }
   if(b.dataset.st){ const [k,a]=b.dataset.st.split("|"), sc=sceneByKey(k); if(!sc) return; const cur=SSTAT[k]||{};
     if(a==="note"||(a==="notshot"&&cur.status!=="notshot")){ const n=prompt(t(UI.st.prompt).replace("{s}",sc.id),cur.note||""); if(n===null) return; saveSceneStat(sc,Object.assign({note:n.trim().slice(0,500)},a==="note"?{}:{status:"notshot"})); }
@@ -6910,6 +6969,7 @@ window.addEventListener("online",()=>{ netBanner(); loadLiveWx(); loadMaps(); lo
 loadLiveWx(); setInterval(()=>{ if(!document.hidden) loadLiveWx(); },30*60000);
 loadMaps(); loadParking(); loadPrepDone(); loadSceneStat(); document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); loadSceneStat(); } }); setInterval(()=>{ if(!document.hidden){ loadMaps(); loadParking(); loadPrepDone(); } },60000); setInterval(()=>{ if(!document.hidden) loadSceneStat(); },20000);
 nowFab(); setInterval(nowFab,60000);
+loadRain(); setInterval(()=>{ if(!document.hidden) loadRain(); },5*60000); setInterval(rainTick,30000); document.addEventListener("visibilitychange",()=>{ if(!document.hidden) loadRain(); });
 setInterval(()=>{ if(!document.hidden) tickTrains(); },1000);
 setInterval(()=>{ if(tab===0 && DAYS.some(d=>d.day===dayNo && d.date===tokyoDate())) render(); },60000);
 
