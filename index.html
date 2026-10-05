@@ -727,6 +727,9 @@ footer{margin:34px 0 26px;font-size:12px;color:var(--ink-3);text-align:center}
 .sum-ep{min-width:380px}
 .ser-sx{list-style:none;margin:8px 0 0;padding:0;font-size:13px;display:grid;gap:3px}
 .ser-sx small{color:var(--ink-3)}
+.van-dep{font-size:13px;padding:5px 10px;background:var(--chip);font-variant-numeric:tabular-nums}
+.van-dep.late{background:#FEF3C7;color:#92400E;font-weight:600}
+[data-theme="dark"] .van-dep.late{background:#3A2A08;color:#FBBF24}
 </style>
 </head>
 <body>
@@ -2058,8 +2061,9 @@ const JPTEAM = [
 /* Daily announcements from production (shown at the top of that day). posted = date of the notice. */
 const ANNOUNCE = [
   { day:8, posted:"2026-10-06", items:[
-    { icon:"🚐", t:L("ออกจากโรงแรม 06:15","ホテル出発 6:15","Leave the hotel 06:15"), warn:true },
-    { icon:"⛴️", t:L("เรือออก 07:25 — ท่าเรือ","船の出航 7:25 — 港","Ferry departs 07:25 — port"), map:"https://maps.app.goo.gl/iw71p7GGLmRS7J5A9", warn:true },
+    { icon:"🚐", t:L("VAN 1, 2, 3, 5, 6, 7 — ออกจากโรงแรม 06:15 · ขึ้นเรือ 07:25","VAN 1・2・3・5・6・7 — ホテル出発 6:15 · 乗船 7:25","VAN 1, 2, 3, 5, 6, 7 — leave the hotel 06:15 · ferry 07:25"), warn:true },
+    { icon:"🚐", t:L("VAN 4 (พี่จิมมี่: พี่บอส, พี่หญิง, พีดีกุ้ง) — ออกจากโรงแรม 11:00 · ขึ้นเรือ 11:45","VAN 4（Jimmy：Boss、Ying、PD Kung）— ホテル出発 11:00 · 乗船 11:45","VAN 4 (Jimmy: Boss, Ying, PD Kung) — leave the hotel 11:00 · ferry 11:45"), warn:true },
+    { icon:"⛴️", t:L("ท่าเรือ","港","Ferry port"), map:"https://maps.app.goo.gl/iw71p7GGLmRS7J5A9" },
     { icon:"📝", t:L("Note สำหรับถ่ายทำคิวที่ 8 ⬇︎","8日目の撮影メモ ⬇︎","Notes for shooting day 8 ⬇︎") },
     { icon:"🎙️", t:L("อัดเสียงปลายสายมินามิ","電話越しのMinamiの声を録音","Record Minami's voice on the phone (other end of the call)") },
     { icon:"💍", t:L("ถ่ายรูปมินามิใส่แหวน","指輪をつけたMinamiの写真を撮影","Take a photo of Minami wearing the ring") },
@@ -2238,6 +2242,53 @@ const VANS = [
     [L("Content วิดีโอ","コンテンツ（動画）","Content (video)"),L("เบนซ์","Benz","Benz")],
     [L("Content ภาพนิ่ง","コンテンツ（スチール）","Content (stills)"),L("ปอม","Pom","Pom")] ]}
 ];
+
+/* Per-day seating that replaces the default sheet on that shooting day. dep = hotel departure, ferry = boarding time. */
+const VANS_BY_DAY = {
+  8: { title: L("Japan 6 Oct 2026 · Q8 Shooting","Japan 6 Oct 2026 · Q8 撮影","Japan 6 Oct 2026 · Q8 Shooting"), vans: [
+    { no:1, color:"#E9C24F", dep:"06:15", ferry:"07:25", driver:L("คุณน้อยหน่า","Noina-san","Noina"), members:[
+      [L("Director","監督","Director"),L("จัสติน่า","Justina","Justina")],
+      [L("1st Assistant Director","助監督（1st）","1st Assistant Director"),L("ดิว","Dew","Dew")],
+      [L("Director of Photography","撮影監督","Director of Photography"),L("เนเน่","Nene","Nene")],
+      [L("Assist PD","アシスタントPD","Assist PD"),L("มี่","Mee","Mee")],
+      [L("Cam B","Bカメ","Cam B"),L("เอย","Oey","Oey")],
+      [L("Prod.Service","制作サービス","Prod.Service"),L("คุณมิกิ","Miki-san","Miki")],
+      [L("Prod.Service","制作サービス","Prod.Service"),L("คุณน้อยหน่า","Noina-san","Noina")] ]},
+    { no:2, color:"#4A78D0", dep:"06:15", ferry:"07:25", driver:L("พี่แปะ","Pae","Pae"), members:[
+      [L("Art Director","美術監督","Art Director"),L("เอิร์ธ","Earth","Earth")],
+      [L("PM","PM","PM"),L("เอกกร","Akkorn","Akkorn")],
+      [L("Producer","プロデューサー","Producer"),L("พี่เจมส์","James","James")],
+      [L("Assist PD","アシスタントPD","Assist PD"),L("เอ็มเจ","MJ","MJ")] ]},
+    { no:3, color:"#B1A6D3", dep:"06:15", ferry:"07:25", driver:L("นัท","Nat","Nat"), members:[
+      [L("Gaffer / Runner","照明・ランナー","Gaffer / Runner"),L("โอ๊ต","Oat","Oat")],
+      [L("Focus Puller 2","フォーカスプラー 2","Focus Puller 2"),L("โบนัส","Bonus","Bonus")],
+      [L("Focus Puller","フォーカスプラー","Focus Puller"),L("เจเจ","JJ","JJ")],
+      [L("Sound","録音","Sound"),L("นัท","Nat","Nat")] ]},
+    { no:4, color:"#5AA65A", dep:"11:00", ferry:"11:45", late:true, driver:L("พี่จิมมี่","Jimmy","Jimmy"), members:[
+      [L("Driver","ドライバー","Driver"),L("พี่จิมมี่","Jimmy","Jimmy")],
+      [L("Executive Producer","エグゼクティブ・プロデューサー","Executive Producer"),L("พี่บอส","Boss","Boss")],
+      [L("Entertainment","エンターテインメント","Entertainment"),L("พี่หญิง","Ying","Ying")],
+      [L("Cast","キャスト","Cast"),L("พีดีกุ้ง","PD Kung","PD Kung")] ]},
+    { no:5, color:"#A7622A", dep:"06:15", ferry:"07:25", driver:L("พี่ซี","Zee","Zee"), members:[
+      [L("Support Cast","サポートキャスト","Support Cast"),L("มิโอริ","Miori","Miori")],
+      [L("Support Cast","サポートキャスト","Support Cast"),L("ทาคุยะ","Takuya","Takuya")],
+      [L("Stylist","スタイリスト","Stylist"),L("เจน","Jane","Jane")],
+      [L("Asst. Costume","衣装アシスタント","Asst. Costume"),L("กวาง","Kwang","Kwang")],
+      [L("Loader","ローダー","Loader"),L("ซี","Zee","Zee")] ]},
+    { no:6, color:"#EE8BB5", dep:"06:15", ferry:"07:25", driver:L("พี่วี","Wee","Wee"), members:[
+      [L("Make up","メイク","Make up"),L("เอฟ","F","F")],
+      [L("Hair","ヘア","Hair"),L("จูเนียร์","Junior","Junior")],
+      [L("ดูแลศิลปิน + Content","タレントケア＋コンテンツ","Talent care + Content"),L("จี้","Jee","Jee")],
+      [L("Driver","ドライバー","Driver"),L("พี่วี","Wee","Wee")],
+      [L("Cast","キャスト","Cast"),L("เฟรนด์","Friend","Friend")],
+      [L("Cast","キャスト","Cast"),L("ปาล์ม","Palm","Palm")] ]},
+    { no:7, color:"#F29E3D", dep:"06:15", ferry:"07:25", driver:L("เฟรม","Frame","Frame"), members:[
+      [L("Cam C","Cカメ","Cam C"),L("ออกัส","August","August")],
+      [L("Slate/Report","カチンコ・記録","Slate/Report"),L("เฟรม","Frame","Frame")],
+      [L("Content วิดีโอ","コンテンツ（動画）","Content (video)"),L("เบนซ์","Benz","Benz")],
+      [L("Content ภาพนิ่ง","コンテンツ（スチール）","Content (stills)"),L("ปอม","Pom","Pom")] ]}
+  ]}
+};
 
 /* generated by tools/costume_build.py from RSN_COSTUME BOOK_190926.pdf — do not edit by hand */
 const COSTUME = {
@@ -5666,6 +5717,7 @@ const UI = {
     atPf:L("จอดอยู่ที่ชานชาลา · ออกในอีก {t}","停車中 · あと{t}で発車","At the platform · departs in {t}"),
     running:L("กำลังวิ่ง (ถ่ายทำ) · ถึง Oshio อีก {t}","走行中（撮影）· 大塩まであと{t}","Running (shooting) · Oshio in {t}"),
     back:L("ขากลับ · ถึงฮิเมจิอีก {t}","戻り · 姫路まであと{t}","Returning · Himeji in {t}"), gone:L("ผ่านไปแล้ว","通過済み","Done"), goL:L("ช่วงถ่ายทำบนรถ","車内撮影","Shooting on board"), backL:L("ขากลับฮิเมจิ","姫路へ戻り","Return to Himeji") },
+  vanDep: L("ออกจากโรงแรม","ホテル出発","Leave hotel"), vanFerry: L("ขึ้นเรือ","乗船","Ferry"),
   listen: L("ฟังเพลง","曲を聴く","Listen"),
   wxHourly: L("06:00–19:00 ทุก 1 ชม. · 20:00–22:00 รวม 2 ชม. (อุณหภูมิ · โอกาสฝน · ปริมาณฝน · ลม)","06:00〜19:00は1時間ごと · 20:00〜22:00は2時間まとめ（気温・降水確率・降水量・風）","06:00–19:00 hourly · 20:00–22:00 as one 2-hr block (temp · rain chance · rainfall · wind)"),
   annH: L("ประกาศจากโปรดักชัน","制作からのお知らせ","Production notice"),
@@ -6481,18 +6533,20 @@ function costumeTab(d){
 }
 
 let vanQ="";
+function vanSet(){ const o=typeof VANS_BY_DAY!=="undefined"&&VANS_BY_DAY[dayNo]; return o?o:{title:VANS_TITLE,vans:VANS}; }
 function vanCards(){
   const q=vanQ.trim().toLowerCase();
   const hit=m=>!q||[m[0].th,m[0].ja,m[1].th,m[1].ja].some(x=>String(x).toLowerCase().includes(q));
-  const vs=VANS.filter(v=>v.members.some(hit));
+  const vs=vanSet().vans.filter(v=>v.members.some(hit));
   if(!vs.length) return `<p class="bs-empty">${t(UI.vanNone)}</p>`;
   return vs.map(v=>`<article class="van" style="--van:${v.color}">
     <div class="van-h"><b>VAN ${v.no}</b><span>${t(UI.vanDrv)}: ${esc(t(v.driver))}</span><small>${v.members.length} ${t(UI.vanPpl)}</small></div>
+    ${v.dep?`<div class="van-dep${v.late?" late":""}">🚐 ${t(UI.vanDep)} <b>${v.dep}</b>${v.ferry?` · ⛴️ ${t(UI.vanFerry)} <b>${v.ferry}</b>`:""}</div>`:""}
     <ul>${v.members.map(m=>`<li class="${q&&hit(m)?"hit":""}"><span>${esc(t(m[0]))}</span><b>${esc(t(m[1]))}</b>${lang!=="th"?`<i>${esc(m[1].th)}</i>`:""}</li>`).join("")}</ul></article>`).join("");
 }
 function vansSec(){
   if(typeof VANS==="undefined") return "";
-  return `<section class="sec"><h2>${t(UI.vanH)}</h2><p class="lead">${esc(t(VANS_TITLE))} · ${t(UI.vanLead)}</p>
+  return `<section class="sec"><h2>${t(UI.vanH)}</h2><p class="lead">${esc(t(vanSet().title))}${vanSet().vans===VANS?` · ${t(UI.vanLead)}`:""}</p>
     <input type="search" class="van-q" id="vanQ" placeholder="${t(UI.vanFind)}" value="${esc(vanQ)}" autocomplete="off">
     <div class="vans" id="vans">${vanCards()}</div></section>`;
 }
