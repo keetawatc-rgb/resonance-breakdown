@@ -6037,6 +6037,8 @@ const UI = {
     lead:L("Daily Script SD {d} (อัปเดต 24/09/26) เรียงตามลำดับในบท แตะเลขซีนเพื่อข้ามไป","デイリー台本 SD {d}（2026/09/24更新）台本の順番どおり。シーン番号をタップで移動","Daily Script SD {d} (updated 24/09/26), in script order. Tap a scene number to jump to it"),
     tr:L("","※ 台本はタイ語原稿からの翻訳です（撮影用参考訳）","※ Script translated from the Thai original (reference translation for the shoot)"), byDay:L("ตามวันถ่าย (Daily Script)","撮影日別（デイリー台本）","By shooting day (Daily Script)"), byEp:L("บทเต็มตาม EP","エピソード別（完成台本）","Full script by EP"),
     epLead:L("บท Final — EP1–7 22/09/26 · EP8–10 12/10/26 — เลขวันถ่ายบอกว่าซีนนี้อยู่ในตารางวันไหน","完成台本 — EP1–7 2026/09/22 · EP8–10 2026/10/12— 撮影日ラベルはブレイクダウン上の撮影日","Final script — EP1–7 22/09/26 · EP8–10 12/10/26 — the shooting-day label shows which day this scene is scheduled"),
+    leadFull:L("บทวันถ่ายที่ {d} ดึงจากบท Final (EP1–7 22/09/26 · EP8–10 12/10/26) เรียงตามคิว Call Sheet — ยังไม่มี Daily Script ของวันนี้","撮影{d}日目の台本は完成台本（EP1–7 2026/09/22・EP8–10 2026/10/12）からコールシート順に抜粋 — この日のデイリー台本はまだありません","Day {d} script pulled from the final scripts (EP1–7 22/09/26 · EP8–10 12/10/26) in call-sheet order — no Daily Script for this day yet"),
+    csNo:L("Call Sheet เขียน","コールシート表記","Call sheet says"),
     notShot:L("ยังไม่มีคิวถ่าย","香盤なし","Not scheduled"), fromFull:L("จากบทเต็ม EP (ไม่พบใน Daily Script)","完成台本より（デイリー台本になし）","From the full EP script (not in the Daily Script)"), hl:L("ไฮไลต์บทของ","セリフをハイライト","Highlight lines for"), notToday:L("ไม่อยู่ในตารางถ่ายวันนี้ของ Breakdown","ブレイクダウンの本日の予定にない","Not in today's Breakdown schedule"),
     otherDay:L("ในบทอยู่วันถ่ายที่ {d}","台本では撮影{d}日目","In the script on shooting day {d}"), chars:L("ตัวละคร","登場人物","Characters"), close:L("ปิด","閉じる","Close"), toSched:L("ดูในตารางถ่าย","スケジュールで見る","View in schedule") },
   cb: { byScene:L("ตามซีน (วันนี้)","シーン別（この日）","By scene (this day)"), byLook:L("ตามชุด (ทั้งหมด)","衣装別（全体）","By look (all)"), look:L("ชุด","ルック","Look"), none:L("ยังไม่มีในคอสตูมบุ๊ก","衣装ブックに記載なし","Not in the costume book yet"), lead:L("จาก Costume Book (19/09/26) — แตะรูปเพื่อดูเต็มจอ","衣装ブック（2026/09/19）より — 写真をタップで拡大","From Costume Book (19/09/26) — tap a photo to view full screen"), leadLook:L("รวมทุกชุดในคอสตูมบุ๊ก แตะเลขวันเพื่อไปที่ซีนนั้น","衣装ブックの全ルック。日付をタップするとそのシーンへ移動","All looks in the costume book. Tap a day number to jump to that scene"), scenes:L("ใช้ในซีน","使用シーン","Used in scenes"), notJp:L("ไม่ได้ถ่ายที่ญี่ปุ่น","日本撮影外","Not shot in Japan"), other:L("อื่นๆ","その他","Other"), sheet:L("Breakdown","ブレイクダウン","Breakdown"), noLook:L("ไม่มีเลขชุด","番号なし","No look number") },
@@ -6980,6 +6982,7 @@ function scrFind(id){ // breakdown scene id -> [{day, sc}] (exact keys first, th
   if(!SCR) return [];
   const ks=sceneKeys(id), out=[], seen=new Set();
   const all=[]; Object.keys(SCR.days).forEach(dy=>SCR.days[dy].scenes.forEach((x,i)=>all.push({day:+dy,i,sc:x,keys:sceneKeys(x.id)})));
+  all.forEach(e=>{ if(e.sc.cs&&e.day===dayNo) e.keys=e.keys.concat(sceneKeys(e.sc.cs)); });
   all.forEach(e=>{ if(e.keys.some(k=>ks.includes(k))&&!seen.has(e.day+"|"+e.i)){ seen.add(e.day+"|"+e.i); out.push(e); } });
   if(!out.length){ const bs=ks.map(scrBase); all.forEach(e=>{ if(e.keys.some(k=>bs.includes(scrBase(k)))&&!seen.has(e.day+"|"+e.i)){ seen.add(e.day+"|"+e.i); out.push(e); } }); }
   return out.sort((a,b)=>(a.day===dayNo?0:1)-(b.day===dayNo?0:1));
@@ -6996,7 +6999,7 @@ function scrBody(x){
 function scrScene(x,day,opts){
   const inBd=new Set(); const d=DAYS.find(q=>q.day===day);
   d&&d.timeline.forEach(it=>(it.slots||[]).forEach(s=>s.scenes.forEach(sc=>sceneKeys(sc.id).forEach(k=>inBd.add(k)))));
-  const miss=opts&&opts.flag&&!sceneKeys(x.id).some(k=>inBd.has(k)||[...inBd].some(b=>scrBase(b)===scrBase(k)));
+  const miss=opts&&opts.flag&&!sceneKeys(x.id).concat(x.cs?sceneKeys(x.cs):[]).some(k=>inBd.has(k)||[...inBd].some(b=>scrBase(b)===scrBase(k)));
   return `<article class="sc-card" ${opts&&opts.anchor?`id="scr-${esc(x.id)}" data-sid="${esc(x.id)}"`:""}>
     <div class="sc-head"><span class="sid">${esc(x.id)}</span>${opts&&opts.dayTag?`<span class="sc-day">${day?`${t(UI.day)} ${day}`:esc(opts.dayTag)}</span>`:""}${miss?`<span class="badge chg">${t(UI.scr.notToday)}</span>`:""}${opts&&opts.extra?`<span class="sc-tags">${opts.extra}</span>`:""}</div>
     <div class="sc-place">${esc(lang==="ja"&&x.hj?x.hj:lang==="en"&&x.he?x.he:x.head)}</div>
@@ -7021,10 +7024,10 @@ function scriptTab(d){
   const sd=SCR.days[String(d.day)]; if(!sd) return `<p class="empty">${t(UI.scr.none)}</p>`;
   const hl=["all","oe","fem"];
   return `<div class="bar" role="group"><button type="button" class="pill" data-scrmode="day" aria-pressed="true">${t(UI.scr.byDay)}</button><button type="button" class="pill" data-scrmode="ep" aria-pressed="false">${t(UI.scr.byEp)}</button></div>
-    <p class="lead cb-lead">${t(UI.scr.lead).replace("{d}",d.day)}${t(UI.scr.tr)?`<br><small>${t(UI.scr.tr)}</small>`:""}</p>
+    <p class="lead cb-lead">${sd.src==="full"?t(UI.scr.leadFull).replace("{d}",d.day):t(UI.scr.lead).replace("{d}",d.day)}${t(UI.scr.tr)?`<br><small>${t(UI.scr.tr)}</small>`:""}</p>
     <div class="bar" role="group"><span class="lbl">${t(UI.scr.hl)}</span>${hl.map(c=>`<button type="button" class="pill" data-scrhl="${c}" aria-pressed="${scrHL===c}">${c==="all"?"–":esc(t(CHAR[c]))}</button>`).join("")}</div>
     <div class="sc-jump">${sd.scenes.map(x=>`<button type="button" data-scrgo="${esc(x.id)}">${esc(x.id.replace("EP.","").replace(" SC."," · "))}</button>`).join("")}</div>
-    ${sd.scenes.map(x=>scrScene(x,d.day,{anchor:true,flag:true})).join("")}`;
+    ${sd.scenes.map(x=>scrScene(x,d.day,{anchor:true,flag:true,extra:x.cs?`<span class="cb-off">${t(UI.scr.csNo)}: ${esc(x.cs)}</span>`:""})).join("")}`;
 }
 let scrOpen=null;
 function openScr(id){
