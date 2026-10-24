@@ -10,77 +10,137 @@
 <link rel="icon" type="image/png" sizes="32x32" href="brand/favicon-32.png">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
 <style>
-:root{--ink:#1B2340;--ink-3:#7B8199;--paper:#F5F6F8;--surface:#fff;--line:#E1E4EA;--err:#B91C1C}
-@media (prefers-color-scheme:dark){:root{--ink:#EDEDEF;--ink-3:#86868E;--paper:#0B0B0C;--surface:#161618;--line:#2A2A2E;--err:#F87171}}
+:root{--ink:#1B2340;--ink-3:#7B8199;--paper:#F5F6F8;--surface:#fff;--line:#E1E4EA;--err:#B91C1C;--ok:#15803D}
+@media (prefers-color-scheme:dark){:root{--ink:#EDEDEF;--ink-3:#86868E;--paper:#0B0B0C;--surface:#161618;--line:#2A2A2E;--err:#F87171;--ok:#4ADE80}}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--paper);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Thai","Hiragino Sans",sans-serif;padding:16px}
 .box{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px 22px;box-shadow:0 10px 40px rgba(0,0,0,.08)}
 h1{margin:0 0 2px;font-size:22px;letter-spacing:.02em}
-p{margin:0 0 18px;color:var(--ink-3);font-size:14px}
-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
-input{width:100%;font:inherit;font-size:17px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
-button{margin-top:12px;width:100%;font:inherit;font-weight:700;font-size:16px;padding:12px;border:0;border-radius:12px;background:var(--ink);color:var(--paper);cursor:pointer}
+p{margin:0 0 16px;color:var(--ink-3);font-size:14px}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 6px}
+input{width:100%;font:inherit;font-size:17px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
+input[readonly]{opacity:.7}
+button{margin-top:14px;width:100%;font:inherit;font-weight:700;font-size:16px;padding:12px;border:0;border-radius:12px;background:var(--ink);color:var(--paper);cursor:pointer}
 button[disabled]{opacity:.6}
 .err{color:var(--err);font-size:13.5px;min-height:20px;margin-top:10px}
+.role{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--paper);border:1px solid var(--line);margin-bottom:6px}
 .lang{display:flex;gap:6px;justify-content:center;margin-top:16px}
 .lang a{font-size:13px;color:var(--ink-3);text-decoration:none;padding:2px 8px;border-radius:999px}
 .lang a.on{background:var(--ink);color:var(--paper)}
 .wait{display:none;text-align:center;color:var(--ink-3);font-size:14px}
+form{display:none}
 </style>
 </head>
 <body>
-<div class="box" id="box">
+<div class="box">
   <h1>RESONANCE</h1>
   <p id="sub"></p>
-  <form id="f" autocomplete="on">
-    <label for="pw" id="lbl"></label>
-    <input id="pw" type="password" autocomplete="current-password" required>
-    <button id="go" type="submit"></button>
-    <div class="err" id="err" role="alert"></div>
+  <form id="fLogin" autocomplete="on">
+    <label for="em" data-t="email"></label><input id="em" type="email" autocomplete="username" required>
+    <label for="pw" data-t="pw"></label><input id="pw" type="password" autocomplete="current-password" required>
+    <button type="submit" data-t="login"></button>
   </form>
+  <form id="fInvite" autocomplete="on">
+    <div class="role" id="invRole"></div>
+    <label for="iName" data-t="name"></label><input id="iName" autocomplete="name" required maxlength="60">
+    <label for="iEm" data-t="email"></label><input id="iEm" type="email" autocomplete="username" required>
+    <label for="iPw" data-t="newpw"></label><input id="iPw" type="password" autocomplete="new-password" required minlength="8">
+    <label for="iPw2" data-t="pw2"></label><input id="iPw2" type="password" autocomplete="new-password" required minlength="8">
+    <button type="submit" data-t="create"></button>
+  </form>
+  <form id="fReset" autocomplete="on">
+    <label for="rEm" data-t="email"></label><input id="rEm" type="email" autocomplete="username" readonly>
+    <label for="rPw" data-t="newpw"></label><input id="rPw" type="password" autocomplete="new-password" required minlength="8">
+    <label for="rPw2" data-t="pw2"></label><input id="rPw2" type="password" autocomplete="new-password" required minlength="8">
+    <button type="submit" data-t="setpw"></button>
+  </form>
+  <div class="err" id="err" role="alert"></div>
   <div class="wait" id="wait"></div>
   <div class="lang"><a href="#" data-l="th">ไทย</a><a href="#" data-l="ja">日本語</a><a href="#" data-l="en">EN</a></div>
 </div>
 <script>
 (()=>{
-const SALT="resonance-breakdown/v1", ITER=310000;
-const T={th:{sub:"Breakdown การถ่ายทำ — สำหรับทีมงานเท่านั้น",lbl:"รหัสผ่าน",go:"เข้าสู่ระบบ",bad:"รหัสผ่านไม่ถูกต้อง",net:"โหลดข้อมูลไม่ได้ ลองใหม่อีกครั้ง",wait:"กำลังเปิด…",old:"เบราว์เซอร์นี้ไม่รองรับ กรุณาใช้ Safari / Chrome รุ่นใหม่"},
- ja:{sub:"撮影ブレイクダウン — スタッフ専用",lbl:"パスワード",go:"ログイン",bad:"パスワードが違います",net:"読み込めませんでした。もう一度お試しください",wait:"開いています…",old:"このブラウザは非対応です。最新のSafari／Chromeをご利用ください"},
- en:{sub:"Shooting breakdown — crew only",lbl:"Password",go:"Unlock",bad:"Wrong password",net:"Couldn't load — please try again",wait:"Opening…",old:"This browser isn't supported — please use a recent Safari / Chrome"}};
-let lang=(()=>{ try{ const q=new URLSearchParams(location.search).get("lang")||localStorage.getItem("rsn-lang"); if(T[q]) return q; }catch(e){} const n=(navigator.language||"").slice(0,2); return n==="ja"?"ja":n==="th"?"th":"en"; })();
-const $=id=>document.getElementById(id);
-function paint(){ const t=T[lang]; $("sub").textContent=t.sub; $("lbl").textContent=t.lbl; $("go").textContent=t.go; $("wait").textContent=t.wait; document.documentElement.lang=lang;
+const SB={url:"https://nzyatqimjxgpuyleorqv.supabase.co",key:"sb_publishable_RPgI4IFn9QDDzyEXGbL8VQ_50w6-UWz"};
+const T={
+ th:{sub:"Breakdown การถ่ายทำ — สำหรับทีมงานเท่านั้น",subInv:"สร้างบัญชีจากลิงก์เชิญ",subReset:"ตั้งรหัสผ่านใหม่",email:"อีเมล",pw:"รหัสผ่าน",newpw:"ตั้งรหัสผ่าน (อย่างน้อย 8 ตัว)",pw2:"ยืนยันรหัสผ่าน",name:"ชื่อที่แสดง (เช่น ชื่อเล่น + ตำแหน่ง)",login:"เข้าสู่ระบบ",create:"สร้างบัญชีและเข้าสู่ระบบ",setpw:"บันทึกรหัสผ่านใหม่",
+   bad:"อีเมลหรือรหัสผ่านไม่ถูกต้อง",net:"เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง",wait:"กำลังเปิด…",old:"เบราว์เซอร์นี้ไม่รองรับ กรุณาใช้ Safari / Chrome รุ่นใหม่",mismatch:"รหัสผ่านสองช่องไม่ตรงกัน",weak:"รหัสผ่านต้องมีอย่างน้อย 8 ตัว",
+   invalid:"ลิงก์นี้ใช้ไม่ได้ (หมดอายุหรือใช้ไปแล้ว) — ขอลิงก์ใหม่จาก Producer",exists:"อีเมลนี้มีบัญชีอยู่แล้ว — เข้าสู่ระบบด้วยรหัสเดิม หรือขอลิงก์รีเซ็ตรหัส",fields:"กรอกชื่อและอีเมลให้ครบ",disabled:"บัญชีนี้ถูกปิดการใช้งาน — ติดต่อ Producer",
+   roles:{admin:"Admin",producer:"Producer",pa:"Production Assistant",report:"Production Report",view:"View Only"}},
+ ja:{sub:"撮影ブレイクダウン — スタッフ専用",subInv:"招待リンクからアカウント作成",subReset:"新しいパスワードを設定",email:"メールアドレス",pw:"パスワード",newpw:"パスワード（8文字以上）",pw2:"パスワード（確認）",name:"表示名（例：ニックネーム＋役職）",login:"ログイン",create:"アカウントを作成してログイン",setpw:"新しいパスワードを保存",
+   bad:"メールアドレスまたはパスワードが違います",net:"接続できません。もう一度お試しください",wait:"開いています…",old:"このブラウザは非対応です。最新のSafari／Chromeをご利用ください",mismatch:"パスワードが一致しません",weak:"パスワードは8文字以上にしてください",
+   invalid:"このリンクは使えません（期限切れまたは使用済み）— プロデューサーに新しいリンクを依頼してください",exists:"このメールアドレスは登録済みです — 既存のパスワードでログインするか、リセットリンクを依頼してください",fields:"名前とメールアドレスを入力してください",disabled:"このアカウントは無効です — プロデューサーに連絡してください",
+   roles:{admin:"Admin",producer:"Producer",pa:"Production Assistant",report:"Production Report",view:"閲覧のみ"}},
+ en:{sub:"Shooting breakdown — crew only",subInv:"Create your account from the invite",subReset:"Set a new password",email:"Email",pw:"Password",newpw:"Choose a password (8+ characters)",pw2:"Confirm password",name:"Display name (e.g. nickname + job)",login:"Log in",create:"Create account and log in",setpw:"Save new password",
+   bad:"Wrong email or password",net:"Can't connect — please try again",wait:"Opening…",old:"This browser isn't supported — please use a recent Safari / Chrome",mismatch:"The passwords don't match",weak:"The password needs at least 8 characters",
+   invalid:"This link no longer works (expired or used) — ask a producer for a new one",exists:"This email already has an account — log in with your password or ask for a reset link",fields:"Fill in your name and email",disabled:"This account is disabled — contact a producer",
+   roles:{admin:"Admin",producer:"Producer",pa:"Production Assistant",report:"Production Report",view:"View only"}}};
+const qs=new URLSearchParams(location.search), INV=qs.get("invite");
+let lang=(()=>{ try{ const q=qs.get("lang")||localStorage.getItem("rsn-lang"); if(T[q]) return q; }catch(e){} const n=(navigator.language||"").slice(0,2); return n==="ja"?"ja":n==="th"?"th":"en"; })();
+let mode="login", inv=null;
+const $=id=>document.getElementById(id), t=k=>T[lang][k];
+function paint(){ $("sub").textContent=mode==="invite"?t("subInv"):mode==="reset"?t("subReset"):t("sub"); $("wait").textContent=t("wait");
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t)); document.documentElement.lang=lang;
+  if(inv&&inv.role) $("invRole").textContent=T[lang].roles[inv.role]||inv.role;
   document.querySelectorAll(".lang a").forEach(a=>a.classList.toggle("on",a.dataset.l===lang)); }
 document.querySelectorAll(".lang a").forEach(a=>a.onclick=e=>{ e.preventDefault(); lang=a.dataset.l; try{ localStorage.setItem("rsn-lang",lang); }catch(_){} paint(); });
-paint();
+const show=f=>{ ["fLogin","fInvite","fReset"].forEach(i=>$(i).style.display=i===f?"block":"none"); $("wait").style.display=f?"none":"block"; };
+const err=k=>{ $("err").textContent=k?t(k)||k:""; };
 const idb=(mode,fn)=>new Promise((res,rej)=>{ const o=indexedDB.open("rsn-lock",1); o.onupgradeneeded=()=>o.result.createObjectStore("k"); o.onerror=()=>rej(o.error);
   o.onsuccess=()=>{ const tx=o.result.transaction("k",mode), r=fn(tx.objectStore("k")); tx.oncomplete=()=>res(r&&r.result); tx.onerror=()=>rej(tx.error); }; });
-const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
-async function derive(pw){ const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveBits"]);
-  return crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:new TextEncoder().encode(SALT),iterations:ITER},base,256); }
-async function decrypt(bits,buf){ const u=new Uint8Array(buf); if(new TextDecoder().decode(u.slice(0,5))!=="RSNE1") throw new Error("format");
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)).buffer;
+const getS=()=>{ try{ return JSON.parse(localStorage.getItem("rsn-auth")||"null"); }catch(e){ return null; } };
+const setS=s=>{ try{ s?localStorage.setItem("rsn-auth",JSON.stringify(s)):localStorage.removeItem("rsn-auth"); }catch(e){} };
+async function auth(grant,body){ const r=await fetch(`${SB.url}/auth/v1/token?grant_type=${grant}`,{method:"POST",headers:{apikey:SB.key,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({})); if(!r.ok){ const e=new Error(r.status>=500?"net":"bad"); e.status=r.status; throw e; }
+  const s={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+(j.expires_in||3600)*1000,user:{id:j.user.id,email:j.user.email}}; setS(s); return s; }
+async function rpc(fn,s,body){ const r=await fetch(`${SB.url}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SB.key,Authorization:"Bearer "+s.access_token,"Content-Type":"application/json"},body:JSON.stringify(body||{})});
+  if(!r.ok){ const e=new Error("net"); e.status=r.status; throw e; } return r.json(); }
+async function account(body){ const r=await fetch(`${SB.url}/functions/v1/account`,{method:"POST",headers:{apikey:SB.key,"Content-Type":"application/json"},body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||"net"); return j; }
+async function decrypt(bits,buf){ const u=new Uint8Array(buf); if(new TextDecoder().decode(u.slice(0,5))!=="RSNE1") return buf;
   const k=await crypto.subtle.importKey("raw",bits,"AES-GCM",false,["decrypt"]); return crypto.subtle.decrypt({name:"AES-GCM",iv:u.slice(5,17)},k,u.slice(17)); }
 async function fetchApp(){ try{ const r=await fetch("app.enc?v="+Date.now(),{cache:"no-store"}); if(!r.ok) throw 0; return await r.arrayBuffer(); }
   catch(e){ const c=await caches.match("app.enc"); if(c) return c.arrayBuffer(); throw new Error("net"); } }
 async function swReady(){ if(!("serviceWorker" in navigator)) return;
   await navigator.serviceWorker.register("sw.js"); await navigator.serviceWorker.ready;
   if(!navigator.serviceWorker.controller) await Promise.race([new Promise(r=>navigator.serviceWorker.addEventListener("controllerchange",r,{once:true})),new Promise(r=>setTimeout(r,2500))]);
-  if(!navigator.serviceWorker.controller){ sessionStorage.setItem("rsn-reload","1"); location.reload(); await new Promise(()=>{}); } }
-async function open_(bits,html){
-  await idb("readwrite",s=>s.put(bits,"key"));
-  try{ localStorage.setItem("rsn-crew",hex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode("rsn-crew:"+hex(bits))))); }catch(e){}
+  if(!navigator.serviceWorker.controller){ location.reload(); await new Promise(()=>{}); } }
+async function openApp(bits,logged){
+  show(null); const html=await decrypt(bits,await fetchApp());
+  await idb("readwrite",st=>st.put(bits,"key"));
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage("rsn-key-changed");
   await swReady();
+  if(INV) history.replaceState(null,"",location.pathname);
   document.open(); document.write(new TextDecoder().decode(html)); document.close(); }
-async function tryStored(){ try{ const bits=await idb("readonly",s=>s.get("key")); if(!bits) return false;
-    $("f").style.display="none"; $("wait").style.display="block";
-    const html=await decrypt(bits,await fetchApp()); await open_(bits,html); return true; }
-  catch(e){ $("f").style.display=""; $("wait").style.display="none"; if(e.message==="net") $("err").textContent=T[lang].net; return false; } }
-$("f").onsubmit=async e=>{ e.preventDefault(); $("err").textContent=""; $("go").disabled=true;
-  try{ const bits=await derive($("pw").value); let html;
-    try{ html=await decrypt(bits,await fetchApp()); }catch(x){ $("err").textContent=x.message==="net"?T[lang].net:T[lang].bad; $("go").disabled=false; return; }
-    $("f").style.display="none"; $("wait").style.display="block"; await open_(bits,html);
-  }catch(x){ $("err").textContent=T[lang].net; $("go").disabled=false; } };
-if(!window.crypto||!crypto.subtle||!window.indexedDB){ $("err").textContent=T[lang].old; $("go").disabled=true; } else tryStored().then(ok=>{ if(!ok) $("pw").focus(); });
+async function keyFor(s){ const k=await rpc("site_key",s); if(!k){ const e=new Error("disabled"); throw e; } return b64(k); }
+async function afterLogin(s,ev){ const bits=await keyFor(s); rpc("log_event",s,{action:ev,detail:{ua:navigator.userAgent.slice(0,120)}}).catch(()=>{}); await openApp(bits); }
+async function resume(){ // returning device
+  let s=getS(); const stored=await idb("readonly",st=>st.get("key")).catch(()=>null);
+  if(!s) return false;
+  try{ if(Date.now()>s.expires_at-60000) s=await auth("refresh_token",{refresh_token:s.refresh_token});
+    const bits=await keyFor(s); rpc("log_event",s,{action:"open"}).catch(()=>{}); await openApp(bits); return true; }
+  catch(e){ if((e instanceof TypeError||e.message==="net"&&e.status==null)&&stored){ await openApp(stored); return true; } // offline: keep working with the cached key
+    if(e.message==="disabled"){ err("disabled"); } setS(null); await idb("readwrite",st=>st.delete("key")).catch(()=>{}); return false; } }
+$("fLogin").onsubmit=async e=>{ e.preventDefault(); err(""); const btn=e.target.querySelector("button"); btn.disabled=true;
+  try{ const s=await auth("password",{email:$("em").value.trim(),password:$("pw").value}); await afterLogin(s,"login"); }
+  catch(x){ show("fLogin"); err(x.message==="disabled"?"disabled":x.status===400?"bad":"net"); btn.disabled=false; } };
+$("fInvite").onsubmit=async e=>{ e.preventDefault(); err(""); if($("iPw").value!==$("iPw2").value) return err("mismatch"); if($("iPw").value.length<8) return err("weak");
+  const btn=e.target.querySelector("button"); btn.disabled=true;
+  try{ const r=await account({action:"redeem",token:INV,email:$("iEm").value,name:$("iName").value,password:$("iPw").value});
+    const s=await auth("password",{email:r.email,password:$("iPw").value}); await afterLogin(s,"first_login"); }
+  catch(x){ show("fInvite"); err(["invalid","exists","fields","weak"].includes(x.message)?x.message:"net"); btn.disabled=false; } };
+$("fReset").onsubmit=async e=>{ e.preventDefault(); err(""); if($("rPw").value!==$("rPw2").value) return err("mismatch"); if($("rPw").value.length<8) return err("weak");
+  const btn=e.target.querySelector("button"); btn.disabled=true;
+  try{ const r=await account({action:"redeem",token:INV,password:$("rPw").value});
+    const s=await auth("password",{email:r.email,password:$("rPw").value}); await afterLogin(s,"login_after_reset"); }
+  catch(x){ show("fReset"); err(x.message==="invalid"?"invalid":"net"); btn.disabled=false; } };
+(async()=>{ paint();
+  if(!window.crypto||!crypto.subtle||!window.indexedDB){ show("fLogin"); err("old"); return; }
+  if(INV){ try{ inv=await account({action:"peek",token:INV}); mode=inv.kind==="reset"?"reset":"invite"; paint();
+      if(mode==="reset"){ $("rEm").value=inv.email||""; show("fReset"); }
+      else{ $("iName").value=inv.name||""; if(inv.email){ $("iEm").value=inv.email; $("iEm").readOnly=true; } show("fInvite"); }
+      return; }
+    catch(x){ show("fLogin"); err(x.message==="invalid"?"invalid":"net"); return; } }
+  show(null); if(await resume()) return; show("fLogin"); paint(); $("em").focus(); })();
 })();
 </script>
 </body>
