@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#F5F6F8">
+<title>RESONANCE THE SERIES · Breakdown</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="brand/favicon-32.png">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<style>
+:root{--ink:#1B2340;--ink-3:#7B8199;--paper:#F5F6F8;--surface:#fff;--line:#E1E4EA;--err:#B91C1C}
+@media (prefers-color-scheme:dark){:root{--ink:#EDEDEF;--ink-3:#86868E;--paper:#0B0B0C;--surface:#161618;--line:#2A2A2E;--err:#F87171}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--paper);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Thai","Hiragino Sans",sans-serif;padding:16px}
+.box{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px 22px;box-shadow:0 10px 40px rgba(0,0,0,.08)}
+h1{margin:0 0 2px;font-size:22px;letter-spacing:.02em}
+p{margin:0 0 18px;color:var(--ink-3);font-size:14px}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+input{width:100%;font:inherit;font-size:17px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
+button{margin-top:12px;width:100%;font:inherit;font-weight:700;font-size:16px;padding:12px;border:0;border-radius:12px;background:var(--ink);color:var(--paper);cursor:pointer}
+button[disabled]{opacity:.6}
+.err{color:var(--err);font-size:13.5px;min-height:20px;margin-top:10px}
+.lang{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.lang a{font-size:13px;color:var(--ink-3);text-decoration:none;padding:2px 8px;border-radius:999px}
+.lang a.on{background:var(--ink);color:var(--paper)}
+.wait{display:none;text-align:center;color:var(--ink-3);font-size:14px}
+</style>
+</head>
+<body>
+<div class="box" id="box">
+  <h1>RESONANCE</h1>
+  <p id="sub"></p>
+  <form id="f" autocomplete="on">
+    <label for="pw" id="lbl"></label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+    <button id="go" type="submit"></button>
+    <div class="err" id="err" role="alert"></div>
+  </form>
+  <div class="wait" id="wait"></div>
+  <div class="lang"><a href="#" data-l="th">ไทย</a><a href="#" data-l="ja">日本語</a><a href="#" data-l="en">EN</a></div>
+</div>
+<script>
+(()=>{
+const SALT="resonance-breakdown/v1", ITER=310000;
+const T={th:{sub:"Breakdown การถ่ายทำ — สำหรับทีมงานเท่านั้น",lbl:"รหัสผ่าน",go:"เข้าสู่ระบบ",bad:"รหัสผ่านไม่ถูกต้อง",net:"โหลดข้อมูลไม่ได้ ลองใหม่อีกครั้ง",wait:"กำลังเปิด…",old:"เบราว์เซอร์นี้ไม่รองรับ กรุณาใช้ Safari / Chrome รุ่นใหม่"},
+ ja:{sub:"撮影ブレイクダウン — スタッフ専用",lbl:"パスワード",go:"ログイン",bad:"パスワードが違います",net:"読み込めませんでした。もう一度お試しください",wait:"開いています…",old:"このブラウザは非対応です。最新のSafari／Chromeをご利用ください"},
+ en:{sub:"Shooting breakdown — crew only",lbl:"Password",go:"Unlock",bad:"Wrong password",net:"Couldn't load — please try again",wait:"Opening…",old:"This browser isn't supported — please use a recent Safari / Chrome"}};
+let lang=(()=>{ try{ const q=new URLSearchParams(location.search).get("lang")||localStorage.getItem("rsn-lang"); if(T[q]) return q; }catch(e){} const n=(navigator.language||"").slice(0,2); return n==="ja"?"ja":n==="th"?"th":"en"; })();
+const $=id=>document.getElementById(id);
+function paint(){ const t=T[lang]; $("sub").textContent=t.sub; $("lbl").textContent=t.lbl; $("go").textContent=t.go; $("wait").textContent=t.wait; document.documentElement.lang=lang;
+  document.querySelectorAll(".lang a").forEach(a=>a.classList.toggle("on",a.dataset.l===lang)); }
+document.querySelectorAll(".lang a").forEach(a=>a.onclick=e=>{ e.preventDefault(); lang=a.dataset.l; try{ localStorage.setItem("rsn-lang",lang); }catch(_){} paint(); });
+paint();
+const idb=(mode,fn)=>new Promise((res,rej)=>{ const o=indexedDB.open("rsn-lock",1); o.onupgradeneeded=()=>o.result.createObjectStore("k"); o.onerror=()=>rej(o.error);
+  o.onsuccess=()=>{ const tx=o.result.transaction("k",mode), r=fn(tx.objectStore("k")); tx.oncomplete=()=>res(r&&r.result); tx.onerror=()=>rej(tx.error); }; });
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+async function derive(pw){ const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveBits"]);
+  return crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:new TextEncoder().encode(SALT),iterations:ITER},base,256); }
+async function decrypt(bits,buf){ const u=new Uint8Array(buf); if(new TextDecoder().decode(u.slice(0,5))!=="RSNE1") throw new Error("format");
+  const k=await crypto.subtle.importKey("raw",bits,"AES-GCM",false,["decrypt"]); return crypto.subtle.decrypt({name:"AES-GCM",iv:u.slice(5,17)},k,u.slice(17)); }
+async function fetchApp(){ try{ const r=await fetch("app.enc?v="+Date.now(),{cache:"no-store"}); if(!r.ok) throw 0; return await r.arrayBuffer(); }
+  catch(e){ const c=await caches.match("app.enc"); if(c) return c.arrayBuffer(); throw new Error("net"); } }
+async function swReady(){ if(!("serviceWorker" in navigator)) return;
+  await navigator.serviceWorker.register("sw.js"); await navigator.serviceWorker.ready;
+  if(!navigator.serviceWorker.controller) await Promise.race([new Promise(r=>navigator.serviceWorker.addEventListener("controllerchange",r,{once:true})),new Promise(r=>setTimeout(r,2500))]);
+  if(!navigator.serviceWorker.controller){ sessionStorage.setItem("rsn-reload","1"); location.reload(); await new Promise(()=>{}); } }
+async function open_(bits,html){
+  await idb("readwrite",s=>s.put(bits,"key"));
+  try{ localStorage.setItem("rsn-crew",hex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode("rsn-crew:"+hex(bits))))); }catch(e){}
+  await swReady();
+  document.open(); document.write(new TextDecoder().decode(html)); document.close(); }
+async function tryStored(){ try{ const bits=await idb("readonly",s=>s.get("key")); if(!bits) return false;
+    $("f").style.display="none"; $("wait").style.display="block";
+    const html=await decrypt(bits,await fetchApp()); await open_(bits,html); return true; }
+  catch(e){ $("f").style.display=""; $("wait").style.display="none"; if(e.message==="net") $("err").textContent=T[lang].net; return false; } }
+$("f").onsubmit=async e=>{ e.preventDefault(); $("err").textContent=""; $("go").disabled=true;
+  try{ const bits=await derive($("pw").value); let html;
+    try{ html=await decrypt(bits,await fetchApp()); }catch(x){ $("err").textContent=x.message==="net"?T[lang].net:T[lang].bad; $("go").disabled=false; return; }
+    $("f").style.display="none"; $("wait").style.display="block"; await open_(bits,html);
+  }catch(x){ $("err").textContent=T[lang].net; $("go").disabled=false; } };
+if(!window.crypto||!crypto.subtle||!window.indexedDB){ $("err").textContent=T[lang].old; $("go").disabled=true; } else tryStored().then(ok=>{ if(!ok) $("pw").focus(); });
+})();
+</script>
+</body>
+</html>
